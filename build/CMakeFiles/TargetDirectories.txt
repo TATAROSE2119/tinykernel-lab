@@ -1,0 +1,8 @@
+/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/myctl.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/leddrv.dir

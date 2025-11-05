@@ -1,0 +1,5 @@
+BasedOnStyle: LLVM        # 或 Google / Microsoft / WebKit / Chromium
+IndentWidth: 8            # 缩进宽度=4
+TabWidth: 8               # Tab 的视觉宽度=4
+UseTab: Never             # 用空格缩进；若想用Tab改为: Always 或 ForIndentation
+ContinuationIndentWidth: 8
