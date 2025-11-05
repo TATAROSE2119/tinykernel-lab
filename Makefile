@@ -16,7 +16,7 @@ cmake-config:
 	 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 
 # ========= 2. 构建（用户态 + 内核模块）=========
-cmake-build: cmake-config
+cmake-build: compile_db
 	@cd $(BUILD_DIR) && cmake --build .
 
 # ========= 3. 完整构建（配置 + 构建 + 合并 JSON）=========

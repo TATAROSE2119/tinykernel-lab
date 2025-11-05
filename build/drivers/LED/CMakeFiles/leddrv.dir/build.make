@@ -58,7 +58,7 @@ drivers/LED/CMakeFiles/leddrv: drivers/LED/leddrv.ko
 
 drivers/LED/leddrv.ko: ../drivers/LED/leddriver.c
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building kernel module leddrv.ko"
-	cd /home/py/linux_drivers/tinykernel-lab/drivers/LED && /usr/bin/make -C /home/py/linux/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek M=/home/py/linux_drivers/tinykernel-lab/drivers/LED ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules
+	cd /home/py/linux_drivers/tinykernel-lab/drivers/LED && /usr/bin/make kernel_modules
 
 leddrv: drivers/LED/CMakeFiles/leddrv
 leddrv: drivers/LED/leddrv.ko

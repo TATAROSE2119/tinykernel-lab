@@ -35,10 +35,10 @@ clean:
 	@rm -f compile_commands.json
 
 # 生成 compile_commands.json（推荐）
-# compile_db:
-# 	bear $(MAKE) -C $(KERNELDIR) M=$(CURRENT_PATH) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
-# ifeq ($(wildcard $(CURRENT_PATH)/.build_success),)
-# 	@echo "Build success"
-# else
-# 	@echo "Build failed"
-# endif
+compile_db:
+	bear $(MAKE) -C $(KERNELDIR) M=$(CURRENT_PATH) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
+ifeq ($(wildcard $(CURRENT_PATH)/.build_success),)
+	@echo "Build success"
+else
+	@echo "Build failed"
+endif

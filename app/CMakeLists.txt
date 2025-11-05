@@ -13,16 +13,3 @@ endif()
 set_target_properties(myctl PROPERTIES
     COMPILE_FLAGS "-Wall -O2"
 )
-
-
-#自动复制到 NFS 
-# if(EXISTS ${BIN_INSTALL_DIR})
-#     add_custom_command(TARGET myctl POST_BUILD
-#         COMMAND ${CMAKE_COMMAND} -E copy
-#             ${CMAKE_CURRENT_BINARY_DIR}/myctl
-#             ${BIN_INSTALL_DIR}/
-#         COMMENT "Copying myctl → NFS"
-#     )
-# else()
-#     message(WARNING "NFS not mounted at ${BIN_INSTALL_DIR}")
-# endif()
