@@ -1,0 +1,1 @@
+cmd_/home/py/linux_drivers/tinykernel-lab/drivers/INPUT_KEY/input_key.ko := arm-linux-gnueabihf-ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/py/linux_drivers/tinykernel-lab/drivers/INPUT_KEY/input_key.ko /home/py/linux_drivers/tinykernel-lab/drivers/INPUT_KEY/input_key.o /home/py/linux_drivers/tinykernel-lab/drivers/INPUT_KEY/input_key.mod.o

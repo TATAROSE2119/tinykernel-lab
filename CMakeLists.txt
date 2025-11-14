@@ -21,3 +21,5 @@ add_subdirectory(app)
 
 # ========== 编译内核模块 ==========
 add_subdirectory(drivers/LED)
+add_subdirectory(drivers/INPUT_KEY)
+add_subdirectory(drivers/IIC_AP3216C)

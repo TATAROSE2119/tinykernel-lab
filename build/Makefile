@@ -124,17 +124,43 @@ myctl/fast:
 .PHONY : myctl/fast
 
 #=============================================================================
-# Target rules for targets named leddrv
+# Target rules for targets named leddrv_module
 
 # Build rule for target.
-leddrv: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 leddrv
-.PHONY : leddrv
+leddrv_module: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 leddrv_module
+.PHONY : leddrv_module
 
 # fast build rule for target.
-leddrv/fast:
-	$(MAKE) -f drivers/LED/CMakeFiles/leddrv.dir/build.make drivers/LED/CMakeFiles/leddrv.dir/build
-.PHONY : leddrv/fast
+leddrv_module/fast:
+	$(MAKE) -f drivers/LED/CMakeFiles/leddrv_module.dir/build.make drivers/LED/CMakeFiles/leddrv_module.dir/build
+.PHONY : leddrv_module/fast
+
+#=============================================================================
+# Target rules for targets named input_key_module
+
+# Build rule for target.
+input_key_module: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 input_key_module
+.PHONY : input_key_module
+
+# fast build rule for target.
+input_key_module/fast:
+	$(MAKE) -f drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build.make drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build
+.PHONY : input_key_module/fast
+
+#=============================================================================
+# Target rules for targets named iic_ap3216c_module
+
+# Build rule for target.
+iic_ap3216c_module: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 iic_ap3216c_module
+.PHONY : iic_ap3216c_module
+
+# fast build rule for target.
+iic_ap3216c_module/fast:
+	$(MAKE) -f drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/build.make drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/build
+.PHONY : iic_ap3216c_module/fast
 
 # Help Target
 help:
@@ -145,7 +171,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... myctl"
-	@echo "... leddrv"
+	@echo "... leddrv_module"
+	@echo "... input_key_module"
+	@echo "... iic_ap3216c_module"
 .PHONY : help
 
 

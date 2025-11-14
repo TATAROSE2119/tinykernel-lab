@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/py/linux_drivers/tinykernel-lab/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,19 +111,19 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-drivers/LED/CMakeFiles/leddrv.dir/rule:
-	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f CMakeFiles/Makefile2 drivers/LED/CMakeFiles/leddrv.dir/rule
-.PHONY : drivers/LED/CMakeFiles/leddrv.dir/rule
+drivers/LED/CMakeFiles/leddrv_module.dir/rule:
+	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f CMakeFiles/Makefile2 drivers/LED/CMakeFiles/leddrv_module.dir/rule
+.PHONY : drivers/LED/CMakeFiles/leddrv_module.dir/rule
 
 # Convenience name for target.
-leddrv: drivers/LED/CMakeFiles/leddrv.dir/rule
+leddrv_module: drivers/LED/CMakeFiles/leddrv_module.dir/rule
 
-.PHONY : leddrv
+.PHONY : leddrv_module
 
 # fast build rule for target.
-leddrv/fast:
-	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f drivers/LED/CMakeFiles/leddrv.dir/build.make drivers/LED/CMakeFiles/leddrv.dir/build
-.PHONY : leddrv/fast
+leddrv_module/fast:
+	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f drivers/LED/CMakeFiles/leddrv_module.dir/build.make drivers/LED/CMakeFiles/leddrv_module.dir/build
+.PHONY : leddrv_module/fast
 
 # Help Target
 help:
@@ -131,9 +131,9 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... leddrv"
+	@echo "... edit_cache"
+	@echo "... leddrv_module"
 .PHONY : help
 
 

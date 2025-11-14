@@ -3,6 +3,12 @@
 /home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/edit_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/rebuild_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/myctl.dir
-/home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/edit_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/rebuild_cache.dir
-/home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/leddrv.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/leddrv_module.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/INPUT_KEY/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/INPUT_KEY/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/INPUT_KEY/CMakeFiles/input_key_module.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/IIC_AP3216C/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/IIC_AP3216C/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir

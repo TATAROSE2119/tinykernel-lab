@@ -1,3 +1,7 @@
 # Hashes of file build rules.
-e4b47c55e7763cde36ea45510b0654f2 drivers/LED/CMakeFiles/leddrv
+3db757af255d6223d88dc6db1567c006 drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module
+c6fe79b9ca11aefc2327a6c1c1a3625a drivers/IIC_AP3216C/iic_ap3216c.ko
+a766d725f14ee4e5aa8ea75a213a7773 drivers/INPUT_KEY/CMakeFiles/input_key_module
+25bb91a2fc479764a8898ba09662f64d drivers/INPUT_KEY/input_key.ko
+e4b47c55e7763cde36ea45510b0654f2 drivers/LED/CMakeFiles/leddrv_module
 a3615e2200cb05da8861864e8ac16030 drivers/LED/leddrv.ko

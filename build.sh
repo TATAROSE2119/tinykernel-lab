@@ -26,6 +26,22 @@ deploy_files() {
     else
         echo "警告: leddrv.ko 未找到"
     fi
+
+    if [ -f "drivers/INPUT_KEY/input_key.ko" ]; then
+        sudo cp drivers/INPUT_KEY/input_key.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
+        echo "已拷贝 input_key.ko 到 NFS 目录"
+    else
+        echo "警告: input_key.ko 未找到"
+    fi
+
+    if [ -f "drivers/IIC_AP3216C/iic_ap3216c.ko" ]; then
+        sudo cp drivers/IIC_AP3216C/iic_ap3216c.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
+        echo "已拷贝 iic_ap3216c.ko 到 NFS 目录"
+    else
+        echo "警告: iic_ap3216c.ko 未找到"
+    fi
+
+
     
     # 拷贝用户应用程序
     if [ -f "build/app/myctl" ]; then
@@ -33,6 +49,13 @@ deploy_files() {
         echo "已拷贝 myctl 到 NFS 目录"
     else
         echo "警告: myctl 未找到"
+    fi
+    # 拷贝启动脚本
+    if [ -f "build/app/myctl" ]; then
+        sudo cp app/run_myctl.sh /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/usr/bin/
+        echo "已拷贝 run_myctl.sh 到 NFS 目录"
+    else
+        echo "警告: run_myctl.sh 未找到"
     fi
 }
 

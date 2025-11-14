@@ -36,6 +36,8 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/py/linux_drivers/tinykernel-lab/build/app/cmake_install.cmake")
   include("/home/py/linux_drivers/tinykernel-lab/build/drivers/LED/cmake_install.cmake")
+  include("/home/py/linux_drivers/tinykernel-lab/build/drivers/INPUT_KEY/cmake_install.cmake")
+  include("/home/py/linux_drivers/tinykernel-lab/build/drivers/IIC_AP3216C/cmake_install.cmake")
 
 endif()
 

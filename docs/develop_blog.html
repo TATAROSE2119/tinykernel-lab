@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>develop_blog.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="tinylinux-iot-kernellab-%E4%BB%8E%E9%9B%B6%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%8F%AF%E6%89%A9%E5%B1%95-linux-%E6%99%BA%E8%83%BD%E7%BB%88%E7%AB%AF%E7%B3%BB%E7%BB%9F">TinyLinux-IoT-KernelLab: 从零实现一个可扩展 Linux 智能终端系统</h1>
+<p>虚拟机ubuntu 16.04
+开发板：正点原子阿尔法imx6ull开发板
+参考教程：正点原子【正点原子】I.MX6U嵌入式Linux驱动开发指南V1.81</p>
+<h2 id="%E2%91%A0%E5%8A%9F%E8%83%BD">①功能</h2>
+<h3 id="1%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E6%96%87%E4%BB%B6%E5%90%88%E9%9B%86">1.设备驱动文件合集</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Skills</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>platfor LED 驱动</td>
+<td>platform_device / device tree 匹配</td>
+</tr>
+<tr>
+<td>按键INPUT子系统</td>
+<td>INPUT子系统</td>
+</tr>
+<tr>
+<td>PWM 驱动 + 用户态接口</td>
+<td>控制背光</td>
+</tr>
+<tr>
+<td>I2C 传感器驱动</td>
+<td>AP3216C 三合一环境光传感器</td>
+</tr>
+<tr>
+<td>SPI 传感器驱动</td>
+<td>ICM-20608 六轴传感器</td>
+</tr>
+<tr>
+<td>UART</td>
+<td>tty driver wrapper</td>
+</tr>
+<tr>
+<td>CAN 收发框架（使用 flexcan）</td>
+<td>netdev / socketCAN</td>
+</tr>
+<tr>
+<td>EEPROM 驱动 + sysfs</td>
+<td>file operations, sysfs node</td>
+</tr>
+</tbody>
+</table>
+<p>用统一的CLI工具访问设备</p>
+<pre class="hljs"><code><div>myctl led on
+myctl can send 01 02 03
+myctl i2c <span class="hljs-built_in">read</span> accel
+</div></code></pre>
+<h3 id="2%E5%8A%A0-llm-api-%E2%86%92-%E8%AF%AD%E9%9F%B3%E5%91%BD%E4%BB%A4%E6%8E%A7%E5%88%B6%E5%BC%80%E5%8F%91%E6%9D%BF">2.加 LLM API → “语音/命令控制开发板”</h3>
+<h2 id="%E2%91%A1%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B">②开发流程</h2>
+<h3 id="20251104-%E5%8A%A0%E5%85%A5led%E5%8A%9F%E8%83%BD">2025.11.04 加入LED功能</h3>
+<h4 id="1-%E5%9C%A8%E8%AE%BE%E5%A4%87%E6%A0%91%E7%A7%8D%E5%88%9B%E5%BB%BA%E8%8A%82%E7%82%B9">1. 在设备树种创建节点</h4>
+<p>在根节点<code>/</code>下添加节点，描述一个LED设备</p>
+<pre class="hljs"><code><div>	gpioled{
+		compatible = <span class="hljs-string">"gpio-leds"</span>;
+		pinctrl-names = <span class="hljs-string">"default"</span>;
+		pinctrl<span class="hljs-number">-0</span> = &lt;&amp;pinctrl_led&gt;;
+		led-gpios   =  &lt;&amp;gpio1 <span class="hljs-number">3</span> GPIO_ACTIVE_LOW&gt;;
+		status = <span class="hljs-string">"okay"</span>;
+	};
+</div></code></pre>
+<p>先编写一个基础的驱动框架来测试一下。</p>
+<pre class="hljs"><code><div><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"asm/gpio.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"asm/string.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"linux/fs.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"linux/interrupt.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"linux/mm.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"linux/printk.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/cdev.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/delay.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/device.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/errno.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/gpio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/ide.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/init.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/kernel.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/module.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/uaccess.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/jiffies.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/of.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/of_address.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/of_gpio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/of_irq.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/timer.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/types.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/irq.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/irqreturn.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/of_irq.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/platform_device.h&gt;</span></span>
+
+MOUDULE_LICENSE(<span class="hljs-string">"GPL"</span>);
+MOUDULE_AUTHOR(<span class="hljs-string">"TATAROSE"</span>);
+
+
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> __init <span class="hljs-title">led_init</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> __exit <span class="hljs-title">led_exit</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>{
+
+}
+
+module_init(led_init);
+module_exit(led_exit);
+</div></code></pre>
+<p>配置一下Cmake和Makefile,项目结构为</p>
+<pre class="hljs"><code><div>.
+├── app
+│   ├── CMakeLists.txt
+│   └── myctl.c
+├── build.sh
+├── cmake
+│   └── toolchains
+│       └── Toolchain-arm-linux-gnueabihf.cmake
+├── CMakeLists.txt
+├── drivers
+│   └── LED
+│       ├── CMakeLists.txt
+│       ├── leddriver.c
+│       ├── Makefile
+│       └── modules.order
+├── Makefile
+├── scripts
+
+</div></code></pre>
+<p><code>app</code>下存放总应用程序，<code>Cmake</code>用户态即可编译出应用程序。<code>drivers</code>下存放驱动程序，由于使用<code>kbuild</code>来编译模块，所以Cmake无法替代<code>Makefile</code>，所以将<code>Makefile</code>添加到<code>drivers/LED</code>。</p>
+<p>应用程序运行结果如下：</p>
+<pre class="hljs"><code><div>/lib/modules/4.1.15/tinyLinux_IoT_kernellab/usr/bin <span class="hljs-comment"># ./myctl </span>
+
+===== 设备控制程序 =====
+支持的设备:
+  1. LED
+
+支持的命令:
+  LED设备:
+    0 - 关闭LED
+    1 - 打开LED
+
+使用方法:
+  交互式: myctl
+  命令行: myctl &lt;device&gt; &lt;<span class="hljs-built_in">command</span>&gt;
+  例如  : myctl led 1
+========================
+
+请选择要操作的设备:
+1. LED
+0. 退出
+请输入选择 (0-1): 1
+
+请选择命令:
+0. 关闭
+1. 打开
+</div></code></pre>
+<h3 id="20251105-%E6%B7%BB%E5%8A%A0input%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%8C%89%E9%94%AE%E5%8A%9F%E8%83%BD">2025.11.05 添加INPUT子系统按键功能</h3>
+<p>添加按键功能，按键功能需要用到INPUT子系统，INPUT子系统是Linux内核中用于处理输入设备的子系统，如鼠标、键盘、触摸屏、游戏控制器等。
+添加<code>./drivers/INPUT_KEY/input_key.c</code>,修改<code>./CMakeLists.txt</code>,<code>./app/myctl.c</code>,<code>./app/CMakeLists.txt</code>。</p>
+
+</body>
+</html>

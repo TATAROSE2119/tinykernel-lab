@@ -1,0 +1,1 @@
+cmd_/home/py/linux_drivers/tinykernel-lab/drivers/IIC_AP3216C/iic_ap3216c.ko := arm-linux-gnueabihf-ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/py/linux_drivers/tinykernel-lab/drivers/IIC_AP3216C/iic_ap3216c.ko /home/py/linux_drivers/tinykernel-lab/drivers/IIC_AP3216C/iic_ap3216c.o /home/py/linux_drivers/tinykernel-lab/drivers/IIC_AP3216C/iic_ap3216c.mod.o

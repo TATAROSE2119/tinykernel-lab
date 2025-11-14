@@ -84,7 +84,7 @@ app/preinstall:
 app/CMakeFiles/myctl.dir/all:
 	$(MAKE) -f app/CMakeFiles/myctl.dir/build.make app/CMakeFiles/myctl.dir/depend
 	$(MAKE) -f app/CMakeFiles/myctl.dir/build.make app/CMakeFiles/myctl.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=2,3 "Built target myctl"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=4,5 "Built target myctl"
 .PHONY : app/CMakeFiles/myctl.dir/all
 
 # Include target in all.
@@ -118,12 +118,12 @@ clean: app/CMakeFiles/myctl.dir/clean
 # Directory level rules for directory drivers/LED
 
 # Convenience name for "all" pass in the directory.
-drivers/LED/all: drivers/LED/CMakeFiles/leddrv.dir/all
+drivers/LED/all: drivers/LED/CMakeFiles/leddrv_module.dir/all
 
 .PHONY : drivers/LED/all
 
 # Convenience name for "clean" pass in the directory.
-drivers/LED/clean: drivers/LED/CMakeFiles/leddrv.dir/clean
+drivers/LED/clean: drivers/LED/CMakeFiles/leddrv_module.dir/clean
 
 .PHONY : drivers/LED/clean
 
@@ -133,39 +133,149 @@ drivers/LED/preinstall:
 .PHONY : drivers/LED/preinstall
 
 #=============================================================================
-# Target rules for target drivers/LED/CMakeFiles/leddrv.dir
+# Target rules for target drivers/LED/CMakeFiles/leddrv_module.dir
 
 # All Build rule for target.
-drivers/LED/CMakeFiles/leddrv.dir/all:
-	$(MAKE) -f drivers/LED/CMakeFiles/leddrv.dir/build.make drivers/LED/CMakeFiles/leddrv.dir/depend
-	$(MAKE) -f drivers/LED/CMakeFiles/leddrv.dir/build.make drivers/LED/CMakeFiles/leddrv.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=1 "Built target leddrv"
-.PHONY : drivers/LED/CMakeFiles/leddrv.dir/all
+drivers/LED/CMakeFiles/leddrv_module.dir/all:
+	$(MAKE) -f drivers/LED/CMakeFiles/leddrv_module.dir/build.make drivers/LED/CMakeFiles/leddrv_module.dir/depend
+	$(MAKE) -f drivers/LED/CMakeFiles/leddrv_module.dir/build.make drivers/LED/CMakeFiles/leddrv_module.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=3 "Built target leddrv_module"
+.PHONY : drivers/LED/CMakeFiles/leddrv_module.dir/all
 
 # Include target in all.
-all: drivers/LED/CMakeFiles/leddrv.dir/all
+all: drivers/LED/CMakeFiles/leddrv_module.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-drivers/LED/CMakeFiles/leddrv.dir/rule: cmake_check_build_system
+drivers/LED/CMakeFiles/leddrv_module.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles 1
-	$(MAKE) -f CMakeFiles/Makefile2 drivers/LED/CMakeFiles/leddrv.dir/all
+	$(MAKE) -f CMakeFiles/Makefile2 drivers/LED/CMakeFiles/leddrv_module.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles 0
-.PHONY : drivers/LED/CMakeFiles/leddrv.dir/rule
+.PHONY : drivers/LED/CMakeFiles/leddrv_module.dir/rule
 
 # Convenience name for target.
-leddrv: drivers/LED/CMakeFiles/leddrv.dir/rule
+leddrv_module: drivers/LED/CMakeFiles/leddrv_module.dir/rule
 
-.PHONY : leddrv
-
-# clean rule for target.
-drivers/LED/CMakeFiles/leddrv.dir/clean:
-	$(MAKE) -f drivers/LED/CMakeFiles/leddrv.dir/build.make drivers/LED/CMakeFiles/leddrv.dir/clean
-.PHONY : drivers/LED/CMakeFiles/leddrv.dir/clean
+.PHONY : leddrv_module
 
 # clean rule for target.
-clean: drivers/LED/CMakeFiles/leddrv.dir/clean
+drivers/LED/CMakeFiles/leddrv_module.dir/clean:
+	$(MAKE) -f drivers/LED/CMakeFiles/leddrv_module.dir/build.make drivers/LED/CMakeFiles/leddrv_module.dir/clean
+.PHONY : drivers/LED/CMakeFiles/leddrv_module.dir/clean
+
+# clean rule for target.
+clean: drivers/LED/CMakeFiles/leddrv_module.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory drivers/INPUT_KEY
+
+# Convenience name for "all" pass in the directory.
+drivers/INPUT_KEY/all: drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/all
+
+.PHONY : drivers/INPUT_KEY/all
+
+# Convenience name for "clean" pass in the directory.
+drivers/INPUT_KEY/clean: drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/clean
+
+.PHONY : drivers/INPUT_KEY/clean
+
+# Convenience name for "preinstall" pass in the directory.
+drivers/INPUT_KEY/preinstall:
+
+.PHONY : drivers/INPUT_KEY/preinstall
+
+#=============================================================================
+# Target rules for target drivers/INPUT_KEY/CMakeFiles/input_key_module.dir
+
+# All Build rule for target.
+drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/all:
+	$(MAKE) -f drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build.make drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/depend
+	$(MAKE) -f drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build.make drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=2 "Built target input_key_module"
+.PHONY : drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/all
+
+# Include target in all.
+all: drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles 0
+.PHONY : drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/rule
+
+# Convenience name for target.
+input_key_module: drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/rule
+
+.PHONY : input_key_module
+
+# clean rule for target.
+drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/clean:
+	$(MAKE) -f drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build.make drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/clean
+.PHONY : drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/clean
+
+# clean rule for target.
+clean: drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory drivers/IIC_AP3216C
+
+# Convenience name for "all" pass in the directory.
+drivers/IIC_AP3216C/all: drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/all
+
+.PHONY : drivers/IIC_AP3216C/all
+
+# Convenience name for "clean" pass in the directory.
+drivers/IIC_AP3216C/clean: drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/clean
+
+.PHONY : drivers/IIC_AP3216C/clean
+
+# Convenience name for "preinstall" pass in the directory.
+drivers/IIC_AP3216C/preinstall:
+
+.PHONY : drivers/IIC_AP3216C/preinstall
+
+#=============================================================================
+# Target rules for target drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir
+
+# All Build rule for target.
+drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/all:
+	$(MAKE) -f drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/build.make drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/depend
+	$(MAKE) -f drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/build.make drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=1 "Built target iic_ap3216c_module"
+.PHONY : drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/all
+
+# Include target in all.
+all: drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles 0
+.PHONY : drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/rule
+
+# Convenience name for target.
+iic_ap3216c_module: drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/rule
+
+.PHONY : iic_ap3216c_module
+
+# clean rule for target.
+drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/clean:
+	$(MAKE) -f drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/build.make drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/clean
+.PHONY : drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/clean
+
+# clean rule for target.
+clean: drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/clean
 
 .PHONY : clean
 
