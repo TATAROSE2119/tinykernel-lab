@@ -53,7 +53,7 @@ CMAKE_BINARY_DIR = /home/py/linux_drivers/tinykernel-lab/build
 # Include the progress variables for this target.
 include drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/progress.make
 
-drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module: drivers/IIC_AP3216C/iic_ap3216c.ko
+drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module: ../drivers/IIC_AP3216C/iic_ap3216c.ko
 
 
 drivers/IIC_AP3216C/iic_ap3216c.ko: ../drivers/IIC_AP3216C/iic_ap3216c.c

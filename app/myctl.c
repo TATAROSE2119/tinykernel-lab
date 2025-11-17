@@ -12,7 +12,34 @@
 #define CMD_LED_OFF 0
 #define DEVICE_FILE_NAME_LED "/dev/led-dts-platform"
 #define DEVICE_FILE_NAME_INPUT_KEY "/dev/input/event1"
+#define DEVICE_FILE_NAME_AP3216C "/dev/ap3216c"
+int control_ap3216c(char *device) {
+        int fd, return_value;
+        unsigned short data[3];
+        unsigned short ps, ir, als;
+        fd = open(device, O_RDONLY);
+        if (fd < 0) {
+                printf("open %s error\n", device);
+                return -1;
+        }
+        while (1) {
+                return_value = read(fd, data, sizeof(data));
+                if (return_value < 0) {
+                        printf("read %s error\n", device);
+                        return -1;
+                } else {
+                        ir = data[0];
+                        als = data[1];
+                        ps = data[2];
+                        printf("ap3216c data:ir= %d,als=%d,ps=%d \r\n", ir, als,
+                               ps);
+                }
+                usleep(200000);//延时200ms
+        }
+        close(fd);
 
+        return 0;
+}
 int control_input_key(char *device) {
         static struct input_event ie;
         int fd, return_value;
@@ -25,15 +52,15 @@ int control_input_key(char *device) {
         while (1) {
                 return_value =
                         read(fd, &ie, sizeof(struct input_event)); // 读取数据
-                if (return_value < 0){
+                if (return_value < 0) {
                         printf("read %s error\n", device);
-                }else{
-                        printf("type: %d, code: %d, value: %d\n",
-                               ie.type, ie.code, ie.value);
-                        switch (ie.type) {     
-                                case EV_KEY:
+                } else {
+                        printf("type: %d, code: %d, value: %d\n", ie.type,
+                               ie.code, ie.value);
+                        switch (ie.type) {
+                        case EV_KEY:
                                 switch (ie.code) {
-                                case EV_KEY: 
+                                case EV_KEY:
                                         printf("按键A按下\r\n");
                                         break;
                                 case EV_REL:
@@ -89,12 +116,14 @@ void show_menu() {
         printf("支持的设备:\n");
         printf("  1. led\n");
         printf("  2. input_key\n");
+        printf("  3. i2c_ap3216c\n");
         printf("\n");
         printf("支持的命令:\n");
         printf("  LED设备:\n");
         printf("    0 - 关闭LED\n");
         printf("    1 - 打开LED\n");
         printf("  input_key设备:\n");
+        printf("  i2c_ap3216c设备:\n");
         printf("\n");
         printf("使用方法:\n");
         printf("  交互式: %s\n", "myctl");
@@ -112,8 +141,9 @@ int interactive_mode() {
         printf("请选择要操作的设备:\n");
         printf("1. LED\n");
         printf("2. input_key\n");
+        printf("3. i2c_ap3216c\n");
         printf("0. 退出\n");
-        printf("请输入选择 (0-2): ");
+        printf("请输入选择 (0-3): ");
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
                 printf("输入错误\n");
@@ -146,9 +176,12 @@ int interactive_mode() {
                 }
 
                 return control_led(DEVICE_FILE_NAME_LED, command_choice);
-        case 2:// input_key
+        case 2: // input_key
                 printf("\n请查看:\n");
                 return control_input_key(DEVICE_FILE_NAME_INPUT_KEY);
+        case 3:
+                printf("\n请查看:\n");
+                return control_ap3216c(DEVICE_FILE_NAME_AP3216C);
         default:
                 printf("无效的设备\n");
                 return -1;

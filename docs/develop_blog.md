@@ -233,4 +233,15 @@ pinctrl_i2c1: i2c1grp {
 ```
 其中`MX6UL_PAD_UART4_TX_DATA__I2C1_SCL`要去看原理图上的连接关系，再去`imx6ul-pinfunc.h`中找对应的宏定义。
 注意在同一个iic节点下，多个设备不能有相同的地址。
-修改好之后重新生成设备树文件。
+修改好之后重新生成设备树文件。编写驱动框架，I2C字符设备驱动框架。初始化AP3216C，实现`ap3216c_read()`函数。接下来通过`i2c_transfer()`函数进行数据传输。
+```c
+int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num);
+```
+`struct i2c_adapter *adap`: 表示要使用的I2C适配器对象
+`struct i2c_msg *msgs`: 指向i2c_msg结构体数组的指针，每个结构体代表一次单独的消息传递操作
+`int num`: 数组中包含的消息数量
+- 成功时返回传输成功的消息数量
+- 发生错误时返回负数表示失败原因
+i2c_transfer函数本身并不直接驱动硬件完成消息交互，而是通过以下流程工作：
+
+寻找到对应的`i2c_adapter`;找到该适配器关联的`i2c_algorithm`;调用`i2c_algorithm`中的`master_xfer()`函数;`master_xfer()`函数才是真正驱动硬件完成实际消息传输的接口
