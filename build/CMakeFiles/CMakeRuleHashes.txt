@@ -5,3 +5,5 @@ a766d725f14ee4e5aa8ea75a213a7773 drivers/INPUT_KEY/CMakeFiles/input_key_module
 25bb91a2fc479764a8898ba09662f64d drivers/INPUT_KEY/input_key.ko
 e4b47c55e7763cde36ea45510b0654f2 drivers/LED/CMakeFiles/leddrv_module
 a3615e2200cb05da8861864e8ac16030 drivers/LED/leddrv.ko
+9ccfc3eb7162119d6d6a43f2168b38a4 drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module
+27657a483719e0ff2306c294b271412e drivers/SPIICM-20608/spi_ICM20608.ko

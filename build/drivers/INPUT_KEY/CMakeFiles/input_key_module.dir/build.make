@@ -53,7 +53,7 @@ CMAKE_BINARY_DIR = /home/py/linux_drivers/tinykernel-lab/build
 # Include the progress variables for this target.
 include drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/progress.make
 
-drivers/INPUT_KEY/CMakeFiles/input_key_module: ../drivers/INPUT_KEY/input_key.ko
+drivers/INPUT_KEY/CMakeFiles/input_key_module: drivers/INPUT_KEY/input_key.ko
 
 
 drivers/INPUT_KEY/input_key.ko: ../drivers/INPUT_KEY/input_key.c

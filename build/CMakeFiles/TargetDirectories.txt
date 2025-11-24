@@ -12,3 +12,6 @@
 /home/py/linux_drivers/tinykernel-lab/build/drivers/IIC_AP3216C/CMakeFiles/rebuild_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/IIC_AP3216C/CMakeFiles/edit_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/SPIICM-20608/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/SPIICM-20608/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir

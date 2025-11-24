@@ -15,6 +15,8 @@
 | UART            | tty driver wrapper               |
 | CAN 收发框架（使用 flexcan） | netdev / socketCAN               |
 | EEPROM 驱动 + sysfs    | file operations, sysfs node      |
+| 多点触摸屏驱动               | 触摸屏驱动                  |
+| 音频播放功能               | 音频播放功能WM8960                  |
 
 用统一的CLI工具访问设备
 
@@ -24,6 +26,294 @@ myctl can send 01 02 03
 myctl i2c read accel
 ```
 ### 2.加 LLM API → “语音/命令控制开发板”
+
+---
+
+## 一、内核态需要实现 / 提供的功能（Linux 4.1.15）
+
+内核态的任务就两类：
+
+1. **把硬件抽象成标准 Linux 设备/子系统**
+2. **提供稳定的用户态接口（/dev、/sys、input、ALSA、socketCAN）**
+
+### 1. 各驱动模块（你那张表里的全部）
+
+#### 1.1 LED platform 驱动
+
+* **实现内容**
+
+  * platform_driver + device tree 匹配 (`of_match_table`)
+  * GPIO/寄存器控制 LED 亮灭
+  * 提供字符设备（或 sysfs）接口：`/dev/led0` 或 `/sys/class/leds/...`
+* **用户态可见接口**
+
+  * `write()` / `ioctl()` 控制亮灭
+  * 可选：sysfs 亮度节点 `brightness`
+
+#### 1.2 按键 INPUT 子系统驱动（只有一个 key）
+
+* **实现内容**
+
+  * GPIO 中断（上/下沿）
+  * 去抖（定时器或延迟采样）
+  * 向 input 子系统上报 `EV_KEY`
+* **用户态可见接口**
+
+  * `/dev/input/eventX` 产生标准 input_event
+
+#### 1.3 PWM 驱动 + 背光控制
+
+* **实现内容**
+
+  * PWM 控制器/通道配置（dts + pwm framework）
+  * 背光设备注册（如果你走 backlight 子系统更正规）
+* **用户态可见接口**
+
+  * `/sys/class/backlight/.../brightness`
+  * 或 `/sys/class/pwm/...`
+
+#### 1.4 I2C：AP3216C 传感器驱动
+
+* **实现内容**
+
+  * I2C client 驱动、探测、寄存器读写
+  * 数据读取与转换（lux / proximity / ir）
+  * 可选：中断模式（接近触发）
+* **用户态可见接口**
+
+  * 字符设备 `/dev/ap3216c`
+  * 或 sysfs：`/sys/bus/i2c/devices/.../xxx`
+
+#### 1.5 SPI：ICM-20608 六轴驱动
+
+* **实现内容**
+
+  * SPI client 驱动、寄存器配置
+  * IMU 数据读取与单位换算
+  * 可选：中断 / FIFO（你可以先不用）
+* **用户态可见接口**
+
+  * 字符设备 `/dev/icm20608`
+  * 或 sysfs 节点
+
+#### 1.6 UART tty wrapper
+
+* **实现内容**
+
+  * 串口本身内核已有驱动，你做的是**封装/配置层**或额外协议层（可选）
+  * 主要确保设备树、波特率、端口可用
+* **用户态可见接口**
+
+  * `/dev/ttymxcX`（标准 tty 设备）
+
+#### 1.7 CAN（flexcan + socketCAN）
+
+* **实现内容**
+
+  * flexcan 控制器驱动 + device tree
+  * 注册 netdev
+  * socketCAN 协议栈接入（内核已有）
+* **用户态可见接口**
+
+  * `can0` 网络接口（`ifconfig can0 up ...`）
+  * PF_CAN socket 收发 `struct can_frame`
+
+#### 1.8 EEPROM 驱动 + sysfs
+
+* **实现内容**
+
+  * I2C/SPI EEPROM 驱动（你按板子实际芯片来）
+  * file_operations（read/write）
+  * sysfs 节点导出关键字段（只读/可写）
+* **用户态可见接口**
+
+  * `/dev/eeprom`
+  * `/sys/.../config_xxx`
+
+#### 1.9 多点触摸屏驱动（无 UI 也照样有用）
+
+* **实现内容**
+
+  * I2C/SPI 触控芯片驱动
+  * 上报 input 多点事件（`EV_ABS + ABS_MT_*`）
+* **用户态可见接口**
+
+  * `/dev/input/eventY` 触摸事件流
+
+#### 1.10 WM8960 音频驱动
+
+* **实现内容**
+
+  * ASoC codec 驱动（WM8960）
+  * I2S/SAI CPU DAI 配置连接
+  * 声卡注册
+* **用户态可见接口**
+
+  * ALSA PCM 设备：`/dev/snd/pcmC*D*p`
+  * `aplay/arecord` 可直接用
+
+---
+
+### 2. 内核态“不做什么”
+
+* **不做业务逻辑**：不做阈值判断、告警策略、采样调度、CAN 网关转发。这些全放用户态。
+* **不做复杂多线程/队列框架**：内核里避免自造轮子，除非必要。
+* **不做 UI 或命令处理**：只负责把设备“变得可用”。
+
+---
+
+## 二、用户态需要实现 / 负责的功能
+
+用户态是“把驱动拼成系统”的地方。核心是两个程序：
+
+* 后台守护进程 `imx6d`
+* 串口命令行工具 `imx6ctl`
+
+### 1. `imx6d`（常驻后台）
+
+#### 1.1 基础设施组件（对应 0voice）
+
+* **线程池 thread_pool**
+
+  * 并发采集传感器
+  * 并发处理 CAN / 配置更新 / 命令请求
+* **定时器管理 timer_mgr（小根堆/红黑树）**
+
+  * 周期采集任务调度
+  * LED 闪烁节奏
+  * 超时与心跳检测
+* **事件循环 reactor（epoll）**
+
+  * 统一监听：
+
+    * `/dev/input/event*`（按键、触摸）
+    * CAN socket
+    * 串口控制通道 / 本地 socket
+    * 可选网络 socket
+* **消息队列 ring_buffer / queue**
+
+  * 采集线程 → 业务线程
+  * IO 线程 → 解析线程
+  * 告警事件 → 告警处理线程
+* **ProtoBuf 编解码 proto_codec**
+
+  * CLI/网络控制协议
+  * 传感器数据上报格式
+  * CAN 帧包装格式
+* **异步日志 async_logger**
+
+  * 后台批量写 `/var/log/imx6d.log`
+  * 支持 CLI 查看/调级别
+
+#### 1.2 业务服务模块
+
+1. **sensor_service**
+
+   * 通过 `/dev/ap3216c`、`/dev/icm20608` 读数据
+   * 用 timer_mgr 定期触发采样
+   * 采样任务丢线程池并发执行
+   * 输出统一 `SensorReport`
+2. **alarm_service**
+
+   * 对 SensorReport 做阈值判断（光照/姿态/震动等）
+   * 触发声光告警：
+
+     * LED：写 `/dev/led0`，闪烁模式由 timer_mgr 控制
+     * 音频：向 ALSA PCM 写告警音
+   * 支持“静音/解除静音”
+3. **can_gateway_service**
+
+   * reactor 监听 CAN socket
+   * CAN 帧 ↔ ProtoBuf 消息双向转换
+   * 可扩展成 CAN↔以太网网关
+4. **config_service**
+
+   * 启动从 `/dev/eeprom` 读配置
+   * 内存中维护 KV 配置表
+   * CLI 改配置后**异步写回 EEPROM**
+5. **input_service**
+
+   * 监听按键 input：识别短按/长按/双击
+   * 监听触摸 input：做“区域触摸快捷键”（无 UI 也能用）
+   * 生成控制事件交给其他模块
+6. **cli_service（控制通道）**
+
+   * 监听本地 socket（或 127.0.0.1 TCP）
+   * 接收 imx6ctl 的 ProtoBuf 命令
+   * 调度到线程池执行并返回结果
+
+---
+
+### 2. `imx6ctl`（串口下跑的 CLI）
+
+你通过串口登录后运行它，它负责：
+
+* 连接 `imx6d`（本地 socket / loopback TCP）
+* 发送 ProtoBuf 命令
+* 把返回结果打印成人话
+
+它需要实现的命令族大概是：
+
+1. **状态类**
+
+   * `status`：系统运行状态、CAN 状态、是否告警、是否静音
+2. **传感器类**
+
+   * `sensor read` / `sensor stream on/off`
+3. **告警类**
+
+   * `alarm mute/unmute`
+   * `alarm test`
+4. **CAN 类**
+
+   * `can dump`
+   * `can send <id> <data>`
+5. **配置类**
+
+   * `config get/set`
+   * `config save/load`
+6. **日志类**
+
+   * `log tail`
+   * `log level debug/info/warn`
+
+---
+
+## 三、两边如何对接（接口清单）
+
+为了保证“分层干净”，用户态只能通过这些接口碰内核：
+
+* **字符设备 / sysfs**
+
+  * LED、PWM、AP3216C、ICM-20608、EEPROM
+* **input 事件**
+
+  * Key、Touch：`/dev/input/event*`
+* **ALSA PCM**
+
+  * WM8960：`/dev/snd/pcm*`
+* **socketCAN**
+
+  * can0：PF_CAN socket
+* **tty**
+
+  * `/dev/ttymxc*`（仅作为登录/调试通道）
+
+除了这些，用户态不应该直接摸寄存器或搞内核内部结构。
+
+---
+
+## 四、最简“边界总结”
+
+* **内核态 = 设备能力 + 标准接口**
+  只负责：**让硬件可用、稳定、符合 Linux 子系统规范**。
+
+* **用户态 = 系统整合 + 业务逻辑 + 0voice 的工程化组件**
+  只负责：**线程池并发采集、epoll 事件驱动、ProtoBuf 协议、告警策略、网关转发、配置中心、CLI 管理**。
+
+这样分工，你的项目就既“像个真正系统”，又能把 0voice 那套点名的东西自然落地。
+
+
 
 
 ## ②开发流程
@@ -245,3 +535,42 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num);
 i2c_transfer函数本身并不直接驱动硬件完成消息交互，而是通过以下流程工作：
 
 寻找到对应的`i2c_adapter`;找到该适配器关联的`i2c_algorithm`;调用`i2c_algorithm`中的`master_xfer()`函数;`master_xfer()`函数才是真正驱动硬件完成实际消息传输的接口
+## 2025.11.18 添加SPI六轴传感器
+主机控制器驱动：SOC的SPI外设驱动，此驱动是半导体原厂编写好的，当spi控制器和驱动匹配时，probe函数会调用，完成驱动初始化。
+
+SPI控制器驱动的核心就是spi_master构建，注册和注销。
+
+修改设备树，片选信号不作为硬件片选，而是作为普通的GPIO，在程序中自行控制片选引脚，添加IO相关信息：
+```dts
+pinctrl_ecspi3:icm20608{
+  fsl,pins = <
+    MX6UL_PAD_UART2_TX_DATA__GPIO1_IO20 0x10b0
+    MX6UL_PAD_UART2_RX_DATA__ECSPI3_SCLK 0x10b1
+    MX6UL_PAD_UART2_CTS_B__ECSPI3_MOSI 0x10b1
+    MX6UL_PAD_UART2_RTS_B__ECSPI3_MISO 0x10b1
+  >;
+};
+```
+屏蔽其他UART2_TX引脚
+创建设备树文件：
+```dts
+&ecspi3{
+	fsl,spi-num-chipselects = <1>;
+	cs_gpio=<&gpio1 20 GPIO_ACTIVE_LOW>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi3>;
+	status = "okay";
+
+	/* 对应的SPI芯片的子节点 */
+	spidev0:icm20608@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "invn,icm20608";
+		reg = <0>;
+		spi-max-frequency = <8000000>;/* spi 的时钟 */
+	};
+};
+```
+用到两个重要的结构体：`struct spi_transfer`和`struct spi_message`，`spi_transfer`用来构建收发数据内容，然后打包到`spi_message`中，最后调用`spi_sync()`函数进行数据传输。
+
+完成SPI驱动的编写。

@@ -13,6 +13,55 @@
 #define DEVICE_FILE_NAME_LED "/dev/led-dts-platform"
 #define DEVICE_FILE_NAME_INPUT_KEY "/dev/input/event1"
 #define DEVICE_FILE_NAME_AP3216C "/dev/ap3216c"
+#define DEVICE_FILE_NAME_ICM20608 "/dev/icm20608"
+int control_icm20608(char *device) { 
+        int fd, return_value;
+        signed int data[7];
+
+        signed int gyro_x_adc, gyro_y_adc, gyro_z_adc;
+        signed int accel_x_adc, accel_y_adc, accel_z_adc;
+        signed int temp_adc;
+
+        float gyro_x_act,gyro_y_act, gyro_z_act;
+        float accel_x_act, accel_y_act, accel_z_act;
+        float temp_act;
+
+
+        fd=open(device, O_RDWR);
+        if (fd < 0){
+                printf("open %s error\n", device);
+                return -1;
+        }
+        while (1) { 
+                return_value = read(fd, data, sizeof(data));
+                if(return_value >= (int)sizeof(data)){
+                        accel_x_adc=data[0];
+                        accel_y_adc=data[1];
+                        accel_z_adc=data[2];
+                        temp_adc=data[3];
+                        gyro_x_adc=data[4];
+                        gyro_y_adc=data[5];
+                        gyro_z_adc=data[6];
+
+                        gyro_x_act = (float)(gyro_x_adc)/16.4;
+                        gyro_y_act = (float)(gyro_y_adc)/16.4;
+                        gyro_z_act = (float)(gyro_z_adc)/16.4;
+                        temp_act = ((float)(temp_adc))/326.8f+25.0f;
+                        accel_x_act = (float)(accel_x_adc)/2048;
+                        accel_y_act = (float)(accel_y_adc)/2048;
+                        accel_z_act = (float)(accel_z_adc)/2048;
+
+
+                        printf("icm20608 data:\r\n");
+                        printf("gyro_x_act=%.2f,gyro_y_act=%.2f,gyro_z_act=%.2f\r\n",gyro_x_act,gyro_y_act,gyro_z_act);
+                        printf("accel_x_act=%.2f,accel_y_act=%.2f,accel_z_act=%.2f\r\n",accel_x_act,accel_y_act,accel_z_act);
+                        printf("temp_act=%.2f\r\n",temp_act);
+                }
+                usleep(300000);
+        }
+        close(fd);
+        return 0;
+}
 int control_ap3216c(char *device) {
         int fd, return_value;
         unsigned short data[3];
@@ -117,6 +166,7 @@ void show_menu() {
         printf("  1. led\n");
         printf("  2. input_key\n");
         printf("  3. i2c_ap3216c\n");
+        printf("  4. i2c_icm20608\n");
         printf("\n");
         printf("支持的命令:\n");
         printf("  LED设备:\n");
@@ -142,8 +192,9 @@ int interactive_mode() {
         printf("1. LED\n");
         printf("2. input_key\n");
         printf("3. i2c_ap3216c\n");
+        printf("4. i2c_icm20608\n");
         printf("0. 退出\n");
-        printf("请输入选择 (0-3): ");
+        printf("请输入选择 (0-4): ");
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
                 printf("输入错误\n");
@@ -182,6 +233,9 @@ int interactive_mode() {
         case 3:
                 printf("\n请查看:\n");
                 return control_ap3216c(DEVICE_FILE_NAME_AP3216C);
+        case 4:
+                printf("\n请查看:\n");
+                return control_icm20608(DEVICE_FILE_NAME_ICM20608);
         default:
                 printf("无效的设备\n");
                 return -1;

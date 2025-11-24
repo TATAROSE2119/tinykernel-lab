@@ -41,6 +41,14 @@ deploy_files() {
         echo "警告: iic_ap3216c.ko 未找到"
     fi
 
+    if [ -f "drivers/SPIICM-20608/spi_ICM20608.ko" ]; then
+        sudo cp drivers/SPIICM-20608/spi_ICM20608.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
+        echo "已拷贝 spi_ICM20608.ko 到 NFS 目录"
+    else
+        echo "警告: spi_ICM20608.ko 未找到"
+    fi
+
+
 
     
     # 拷贝用户应用程序
@@ -61,6 +69,7 @@ deploy_files() {
 
 case $choice in
     1) 
+        make clean
         make build
         setup_nfs_dirs
         deploy_files

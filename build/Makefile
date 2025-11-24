@@ -162,6 +162,19 @@ iic_ap3216c_module/fast:
 	$(MAKE) -f drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/build.make drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/build
 .PHONY : iic_ap3216c_module/fast
 
+#=============================================================================
+# Target rules for targets named spi_ICM20608_module
+
+# Build rule for target.
+spi_ICM20608_module: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 spi_ICM20608_module
+.PHONY : spi_ICM20608_module
+
+# fast build rule for target.
+spi_ICM20608_module/fast:
+	$(MAKE) -f drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/build.make drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/build
+.PHONY : spi_ICM20608_module/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -174,6 +187,7 @@ help:
 	@echo "... leddrv_module"
 	@echo "... input_key_module"
 	@echo "... iic_ap3216c_module"
+	@echo "... spi_ICM20608_module"
 .PHONY : help
 
 
