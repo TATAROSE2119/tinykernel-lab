@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named imx6d
+
+# Build rule for target.
+imx6d: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 imx6d
+.PHONY : imx6d
+
+# fast build rule for target.
+imx6d/fast:
+	$(MAKE) -f app/CMakeFiles/imx6d.dir/build.make app/CMakeFiles/imx6d.dir/build
+.PHONY : imx6d/fast
+
+#=============================================================================
 # Target rules for targets named myctl
 
 # Build rule for target.
@@ -175,6 +188,19 @@ spi_ICM20608_module/fast:
 	$(MAKE) -f drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/build.make drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/build
 .PHONY : spi_ICM20608_module/fast
 
+#=============================================================================
+# Target rules for targets named ramdisk_module
+
+# Build rule for target.
+ramdisk_module: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ramdisk_module
+.PHONY : ramdisk_module
+
+# fast build rule for target.
+ramdisk_module/fast:
+	$(MAKE) -f drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/build.make drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/build
+.PHONY : ramdisk_module/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -183,11 +209,13 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... imx6d"
 	@echo "... myctl"
 	@echo "... leddrv_module"
 	@echo "... input_key_module"
 	@echo "... iic_ap3216c_module"
 	@echo "... spi_ICM20608_module"
+	@echo "... ramdisk_module"
 .PHONY : help
 
 

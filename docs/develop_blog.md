@@ -9,7 +9,7 @@
 | -------------------- | -------------------------------- |
 | platfor LED 驱动          | platform_device / device tree 匹配 |
 | 按键INPUT子系统               | INPUT子系统                  |
-| PWM 驱动 + 用户态接口       | 控制背光               |
+| 块设备驱动|ram|
 | I2C 传感器驱动 | AP3216C 三合一环境光传感器  |
 | SPI 传感器驱动 | ICM-20608 六轴传感器 |
 | UART            | tty driver wrapper               |
@@ -574,3 +574,4 @@ pinctrl_ecspi3:icm20608{
 用到两个重要的结构体：`struct spi_transfer`和`struct spi_message`，`spi_transfer`用来构建收发数据内容，然后打包到`spi_message`中，最后调用`spi_sync()`函数进行数据传输。
 
 完成SPI驱动的编写。
+## 2025.11.25 开始实现用户并发

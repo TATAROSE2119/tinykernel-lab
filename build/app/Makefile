@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/py/linux_drivers/tinykernel-lab/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,6 +111,21 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+app/CMakeFiles/imx6d.dir/rule:
+	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f CMakeFiles/Makefile2 app/CMakeFiles/imx6d.dir/rule
+.PHONY : app/CMakeFiles/imx6d.dir/rule
+
+# Convenience name for target.
+imx6d: app/CMakeFiles/imx6d.dir/rule
+
+.PHONY : imx6d
+
+# fast build rule for target.
+imx6d/fast:
+	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f app/CMakeFiles/imx6d.dir/build.make app/CMakeFiles/imx6d.dir/build
+.PHONY : imx6d/fast
+
+# Convenience name for target.
 app/CMakeFiles/myctl.dir/rule:
 	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f CMakeFiles/Makefile2 app/CMakeFiles/myctl.dir/rule
 .PHONY : app/CMakeFiles/myctl.dir/rule
@@ -124,6 +139,33 @@ myctl: app/CMakeFiles/myctl.dir/rule
 myctl/fast:
 	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f app/CMakeFiles/myctl.dir/build.make app/CMakeFiles/myctl.dir/build
 .PHONY : myctl/fast
+
+imx6d.o: imx6d.c.o
+
+.PHONY : imx6d.o
+
+# target to build an object file
+imx6d.c.o:
+	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f app/CMakeFiles/imx6d.dir/build.make app/CMakeFiles/imx6d.dir/imx6d.c.o
+.PHONY : imx6d.c.o
+
+imx6d.i: imx6d.c.i
+
+.PHONY : imx6d.i
+
+# target to preprocess a source file
+imx6d.c.i:
+	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f app/CMakeFiles/imx6d.dir/build.make app/CMakeFiles/imx6d.dir/imx6d.c.i
+.PHONY : imx6d.c.i
+
+imx6d.s: imx6d.c.s
+
+.PHONY : imx6d.s
+
+# target to generate assembly for a file
+imx6d.c.s:
+	cd /home/py/linux_drivers/tinykernel-lab/build && $(MAKE) -f app/CMakeFiles/imx6d.dir/build.make app/CMakeFiles/imx6d.dir/imx6d.c.s
+.PHONY : imx6d.c.s
 
 myctl.o: myctl.c.o
 
@@ -158,9 +200,13 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... edit_cache"
+	@echo "... imx6d"
 	@echo "... myctl"
+	@echo "... imx6d.o"
+	@echo "... imx6d.i"
+	@echo "... imx6d.s"
 	@echo "... myctl.o"
 	@echo "... myctl.i"
 	@echo "... myctl.s"

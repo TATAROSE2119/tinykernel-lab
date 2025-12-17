@@ -166,7 +166,7 @@ void show_menu() {
         printf("  1. led\n");
         printf("  2. input_key\n");
         printf("  3. i2c_ap3216c\n");
-        printf("  4. i2c_icm20608\n");
+        printf("  4. spi_icm20608\n");
         printf("\n");
         printf("支持的命令:\n");
         printf("  LED设备:\n");
@@ -192,7 +192,7 @@ int interactive_mode() {
         printf("1. LED\n");
         printf("2. input_key\n");
         printf("3. i2c_ap3216c\n");
-        printf("4. i2c_icm20608\n");
+        printf("4. spi_icm20608\n");
         printf("0. 退出\n");
         printf("请输入选择 (0-4): ");
 

@@ -48,6 +48,13 @@ deploy_files() {
         echo "警告: spi_ICM20608.ko 未找到"
     fi
 
+    if [ -f "drivers/BLOCK_DEV/ramdisk.ko" ]; then
+        sudo cp drivers/BLOCK_DEV/ramdisk.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
+        echo "已拷贝 ramdisk.ko 到 NFS 目录"
+    else
+        echo "警告: ramdisk.ko 未找到"
+    fi
+
 
 
     
@@ -58,12 +65,12 @@ deploy_files() {
     else
         echo "警告: myctl 未找到"
     fi
-    # 拷贝启动脚本
-    if [ -f "build/app/myctl" ]; then
-        sudo cp app/run_myctl.sh /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/usr/bin/
-        echo "已拷贝 run_myctl.sh 到 NFS 目录"
+
+    if [ -f "build/app/imx6d" ]; then
+        sudo cp build/app/imx6d /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/usr/bin/
+        echo "已拷贝 imx6d 到 NFS 目录"
     else
-        echo "警告: run_myctl.sh 未找到"
+        echo "警告: imx6d 未找到"
     fi
 }
 

@@ -13,6 +13,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.5.1/CMakeSystem.cmake"
   "CMakeFiles/feature_tests.c"
   "../cmake/toolchains/Toolchain-arm-linux-gnueabihf.cmake"
+  "../drivers/BLOCK_DEV/CMakeLists.txt"
   "../drivers/IIC_AP3216C/CMakeLists.txt"
   "../drivers/INPUT_KEY/CMakeLists.txt"
   "../drivers/LED/CMakeLists.txt"
@@ -97,13 +98,16 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "drivers/INPUT_KEY/CMakeFiles/CMakeDirectoryInformation.cmake"
   "drivers/IIC_AP3216C/CMakeFiles/CMakeDirectoryInformation.cmake"
   "drivers/SPIICM-20608/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "drivers/BLOCK_DEV/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "app/CMakeFiles/imx6d.dir/DependInfo.cmake"
   "app/CMakeFiles/myctl.dir/DependInfo.cmake"
   "drivers/LED/CMakeFiles/leddrv_module.dir/DependInfo.cmake"
   "drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/DependInfo.cmake"
   "drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/DependInfo.cmake"
   "drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/DependInfo.cmake"
+  "drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/DependInfo.cmake"
   )

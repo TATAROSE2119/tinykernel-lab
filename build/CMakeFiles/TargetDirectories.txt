@@ -1,7 +1,8 @@
 /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles/edit_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles/rebuild_cache.dir
-/home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/edit_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/imx6d.dir
 /home/py/linux_drivers/tinykernel-lab/build/app/CMakeFiles/myctl.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/rebuild_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/LED/CMakeFiles/edit_cache.dir
@@ -15,3 +16,6 @@
 /home/py/linux_drivers/tinykernel-lab/build/drivers/SPIICM-20608/CMakeFiles/rebuild_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/SPIICM-20608/CMakeFiles/edit_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/BLOCK_DEV/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/BLOCK_DEV/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir
