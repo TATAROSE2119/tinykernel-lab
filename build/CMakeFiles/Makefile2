@@ -86,7 +86,7 @@ app/preinstall:
 app/CMakeFiles/imx6d.dir/all:
 	$(MAKE) -f app/CMakeFiles/imx6d.dir/build.make app/CMakeFiles/imx6d.dir/depend
 	$(MAKE) -f app/CMakeFiles/imx6d.dir/build.make app/CMakeFiles/imx6d.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=2,3 "Built target imx6d"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=3,4 "Built target imx6d"
 .PHONY : app/CMakeFiles/imx6d.dir/all
 
 # Include target in all.
@@ -123,7 +123,7 @@ clean: app/CMakeFiles/imx6d.dir/clean
 app/CMakeFiles/myctl.dir/all:
 	$(MAKE) -f app/CMakeFiles/myctl.dir/build.make app/CMakeFiles/myctl.dir/depend
 	$(MAKE) -f app/CMakeFiles/myctl.dir/build.make app/CMakeFiles/myctl.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=6,7 "Built target myctl"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=7,8 "Built target myctl"
 .PHONY : app/CMakeFiles/myctl.dir/all
 
 # Include target in all.
@@ -178,7 +178,7 @@ drivers/LED/preinstall:
 drivers/LED/CMakeFiles/leddrv_module.dir/all:
 	$(MAKE) -f drivers/LED/CMakeFiles/leddrv_module.dir/build.make drivers/LED/CMakeFiles/leddrv_module.dir/depend
 	$(MAKE) -f drivers/LED/CMakeFiles/leddrv_module.dir/build.make drivers/LED/CMakeFiles/leddrv_module.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=5 "Built target leddrv_module"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=6 "Built target leddrv_module"
 .PHONY : drivers/LED/CMakeFiles/leddrv_module.dir/all
 
 # Include target in all.
@@ -233,7 +233,7 @@ drivers/INPUT_KEY/preinstall:
 drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/all:
 	$(MAKE) -f drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build.make drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/depend
 	$(MAKE) -f drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build.make drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=4 "Built target input_key_module"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=5 "Built target input_key_module"
 .PHONY : drivers/INPUT_KEY/CMakeFiles/input_key_module.dir/all
 
 # Include target in all.
@@ -343,7 +343,7 @@ drivers/SPIICM-20608/preinstall:
 drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/all:
 	$(MAKE) -f drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/build.make drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/depend
 	$(MAKE) -f drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/build.make drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=9 "Built target spi_ICM20608_module"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=10 "Built target spi_ICM20608_module"
 .PHONY : drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/all
 
 # Include target in all.
@@ -398,7 +398,7 @@ drivers/BLOCK_DEV/preinstall:
 drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/all:
 	$(MAKE) -f drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/build.make drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/depend
 	$(MAKE) -f drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/build.make drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=8 "Built target ramdisk_module"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=9 "Built target ramdisk_module"
 .PHONY : drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/all
 
 # Include target in all.
@@ -425,6 +425,61 @@ drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/clean:
 
 # clean rule for target.
 clean: drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory drivers/IIO_SPI_ICM_20608
+
+# Convenience name for "all" pass in the directory.
+drivers/IIO_SPI_ICM_20608/all: drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/all
+
+.PHONY : drivers/IIO_SPI_ICM_20608/all
+
+# Convenience name for "clean" pass in the directory.
+drivers/IIO_SPI_ICM_20608/clean: drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/clean
+
+.PHONY : drivers/IIO_SPI_ICM_20608/clean
+
+# Convenience name for "preinstall" pass in the directory.
+drivers/IIO_SPI_ICM_20608/preinstall:
+
+.PHONY : drivers/IIO_SPI_ICM_20608/preinstall
+
+#=============================================================================
+# Target rules for target drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir
+
+# All Build rule for target.
+drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/all:
+	$(MAKE) -f drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/build.make drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/depend
+	$(MAKE) -f drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/build.make drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/py/linux_drivers/tinykernel-lab/build/CMakeFiles --progress-num=2 "Built target iio_icm_20608_module"
+.PHONY : drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/all
+
+# Include target in all.
+all: drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/py/linux_drivers/tinykernel-lab/build/CMakeFiles 0
+.PHONY : drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/rule
+
+# Convenience name for target.
+iio_icm_20608_module: drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/rule
+
+.PHONY : iio_icm_20608_module
+
+# clean rule for target.
+drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/clean:
+	$(MAKE) -f drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/build.make drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/clean
+.PHONY : drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/clean
+
+# clean rule for target.
+clean: drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/clean
 
 .PHONY : clean
 

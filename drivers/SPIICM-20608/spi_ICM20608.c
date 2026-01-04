@@ -233,7 +233,7 @@ static int icm20608_probe(struct spi_device *spi) {
 
         /* 获取cs gpio */
         icm20608_dev.nd = of_get_parent(spi->dev.of_node);
-        icm20608_dev.cs_gpio = of_get_named_gpio(icm20608_dev.nd, "cs_gpio", 0);
+        icm20608_dev.cs_gpio = of_get_named_gpio(icm20608_dev.nd, "cs-gpios", 0);
         if (icm20608_dev.cs_gpio < 0) {
                 dev_err(&spi->dev, "get cs gpio failed\r\n");
                 return -EINVAL;
@@ -242,16 +242,17 @@ static int icm20608_probe(struct spi_device *spi) {
                          icm20608_dev.cs_gpio);
         }
 
-        ret = gpio_request(icm20608_dev.cs_gpio, "cs");
-        if (ret < 0) {
-                dev_err(&spi->dev, "gpio_request failed\r\n");
-                return ret;
-        }
-        ret = gpio_direction_output(icm20608_dev.cs_gpio, 1); /* 默认置高 */
-        if (ret < 0) {
-                dev_err(&spi->dev, "gpio_direction_output failed\r\n");
-                return ret;
-        }
+        // ret = gpio_request(icm20608_dev.cs_gpio, "cs");
+        // if (ret < 0) {
+        //         dev_err(&spi->dev, "gpio_request failed\r\n");
+        //         return ret;
+        // }
+        // ret = gpio_direction_output(icm20608_dev.cs_gpio, 1); /* 默认置高 */
+        // if (ret < 0) {
+        //         dev_err(&spi->dev, "gpio_direction_output failed\r\n");
+        //         return ret;
+        // }
+        
         spi->mode = SPI_MODE_0;
         spi_setup(spi);
 

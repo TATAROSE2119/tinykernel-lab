@@ -55,6 +55,12 @@ deploy_files() {
         echo "警告: ramdisk.ko 未找到"
     fi
 
+    if [ -f "drivers/IIO_SPI_ICM_20608/iio_icm_20608.ko" ]; then
+        sudo cp drivers/IIO_SPI_ICM_20608/iio_icm_20608.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
+        echo "已拷贝 iio_icm_20608.ko 到 NFS 目录"
+    else
+        echo "警告: iio_icm_20608.ko 未找到"
+    fi
 
 
     

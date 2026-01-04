@@ -1,4 +1,6 @@
-#include "asm-generic/errno-base.h"
+
+#include "linux/bio.h"
+#include "linux/blk_types.h"
 #include "linux/blkdev.h"
 #include "linux/cdrom.h"
 #include "linux/export.h"
@@ -7,6 +9,7 @@
 #include "linux/gfp.h"
 #include "linux/input.h"
 #include "linux/interrupt.h"
+#include "linux/mm.h"
 #include "linux/mod_devicetable.h"
 #include "linux/printk.h"
 #include "linux/slab.h"
@@ -16,6 +19,7 @@
 #include <linux/device.h>
 #include <linux/errno.h>
 #include <linux/gpio.h>
+#include <linux/hdreg.h>
 #include <linux/ide.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -57,6 +61,10 @@ static void ramdisk_release(struct gendisk *disk, fmode_t mode) {
 // 获取几何信息的回调，这里未真正填充，仅打印
 static int ramdisk_getgeo(struct block_device *bd, struct hd_geometry *geo) {
         printk("ramdisk getgeo\r\n");
+        geo->heads = 2;
+        geo->cylinders = 32;
+        geo->sectors = RAMDISK_SIZE / (2 * 32 * 512);
+
         return 0;
 }
 
@@ -77,7 +85,7 @@ struct ramdisk_dev {
 struct ramdisk_dev ramdiskdev;
 
 // 处理一个 request 的数据传输：根据读/写方向做 memcpy
-static int ramdick_transfer(struct request *req) {
+/* static int ramdick_transfer(struct request *req) {
         // 数据传输三要素：源，目的，长度。
         // 涉及到内存地址，块设备地址，长度
         unsigned long start = blk_rq_pos(req)
@@ -87,6 +95,8 @@ static int ramdick_transfer(struct request *req) {
 
         //获取bio里面的缓冲区
         // 并不是所有的块设备都是用memcpy，还有SD卡，EMMC设备，现在使用内存模拟的
+        // 读:从磁盘读数据到内存缓冲区
+        // 写:从内存缓冲区读数据到磁盘
         void *buffer = bio_data(req->bio);
         if (rq_data_dir(req) == READ) {
                 memcpy(buffer, ramdiskdev.ramdisk_buff + start, len); // 读数据
@@ -95,24 +105,29 @@ static int ramdick_transfer(struct request *req) {
         }
         return err;
 }
+ */
+ //制造请求函数
+static void ramdisk_make_request(struct request_queue *q, struct bio *bio) {
+        int offset;
+        struct bio_vec bvec;
+        struct bvec_iter iter;
+        int len;
 
-// 请求队列处理函数：逐个取出 request 并调用传输函数
-static void ramdisk_requset_fn(struct request_queue *queue) {
-        struct request *req;
-        int err = 0;
-        // 从队列中获取请求
-        req = blk_fetch_request(queue);
-        while (req != NULL) {
-                // 处理请求,具体的数据读写操作
-                if (req) {
-                        err = ramdick_transfer(req); // 实际搬运数据
-                        // 提交/结束当前段的请求，返回 0 表示该 request 结束
-                        if (!__blk_end_request_cur(req, err)) {
-                                req = blk_fetch_request(
-                                        queue); // 获取下一个请求
-                        }
+        offset = bio->bi_iter.bi_sector << 9; //获取扇区地址,改为字节地址。
+
+        bio_for_each_segment(bvec, bio, iter) {
+                char *ptr = page_address(bvec.bv_page) +
+                            bvec.bv_offset; //获取物理地址
+                len = bvec.bv_len;
+                if (bio_data_dir(bio) == READ) {
+                        memcpy(ptr, ramdiskdev.ramdisk_buff + offset, len);//读数据
+                } else {
+                        memcpy(ramdiskdev.ramdisk_buff+offset, ptr, len);//写数据
                 }
+                offset += len; //移动偏移
         }
+        set_bit(BIO_UPTODATE, &bio->bi_flags);
+        bio_endio(bio, 0);
 }
 
 // 模块加载入口：申请内存、注册设备号、创建 gendisk 和请求队列
@@ -134,11 +149,13 @@ static int __init ramdisk_init(void) {
                 ret = -EINVAL;
         }
         spin_lock_init(&ramdiskdev.lock);
-        ramdiskdev.queue = blk_init_queue(ramdisk_requset_fn, &ramdiskdev.lock);
-        if (!ramdiskdev.queue) {
+
+        ramdiskdev.queue = blk_alloc_queue(GFP_KERNEL);
+        if (!ramdiskdev.queue) {//申请请求队列失败
                 ret = -EINVAL;
-                put_disk(ramdiskdev.gendisk);
+                del_gendisk(ramdiskdev.gendisk);
         }
+        blk_queue_make_request(ramdiskdev.queue, ramdisk_make_request);//添加处理函数
 
         ramdiskdev.gendisk->major = ramdiskdev.major;
         ramdiskdev.gendisk->first_minor = 0;

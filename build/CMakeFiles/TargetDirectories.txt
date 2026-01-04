@@ -19,3 +19,6 @@
 /home/py/linux_drivers/tinykernel-lab/build/drivers/BLOCK_DEV/CMakeFiles/edit_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/BLOCK_DEV/CMakeFiles/rebuild_cache.dir
 /home/py/linux_drivers/tinykernel-lab/build/drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/IIO_SPI_ICM_20608/CMakeFiles/edit_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/IIO_SPI_ICM_20608/CMakeFiles/rebuild_cache.dir
+/home/py/linux_drivers/tinykernel-lab/build/drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir

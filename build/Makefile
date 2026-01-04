@@ -201,6 +201,19 @@ ramdisk_module/fast:
 	$(MAKE) -f drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/build.make drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/build
 .PHONY : ramdisk_module/fast
 
+#=============================================================================
+# Target rules for targets named iio_icm_20608_module
+
+# Build rule for target.
+iio_icm_20608_module: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 iio_icm_20608_module
+.PHONY : iio_icm_20608_module
+
+# fast build rule for target.
+iio_icm_20608_module/fast:
+	$(MAKE) -f drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/build.make drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/build
+.PHONY : iio_icm_20608_module/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -216,6 +229,7 @@ help:
 	@echo "... iic_ap3216c_module"
 	@echo "... spi_ICM20608_module"
 	@echo "... ramdisk_module"
+	@echo "... iio_icm_20608_module"
 .PHONY : help
 
 

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(du:*)",
+      "Bash(cat:*)",
+      "Bash(git -C /home/tatarose/vm_project log --oneline -10)",
+      "Bash(git -C /home/tatarose/vm_project remote -v)",
+      "Bash(ls:*)",
+      "Bash(find:*)"
+    ]
+  }
+}

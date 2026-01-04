@@ -15,6 +15,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "../cmake/toolchains/Toolchain-arm-linux-gnueabihf.cmake"
   "../drivers/BLOCK_DEV/CMakeLists.txt"
   "../drivers/IIC_AP3216C/CMakeLists.txt"
+  "../drivers/IIO_SPI_ICM_20608/CMakeLists.txt"
   "../drivers/INPUT_KEY/CMakeLists.txt"
   "../drivers/LED/CMakeLists.txt"
   "../drivers/SPIICM-20608/CMakeLists.txt"
@@ -99,6 +100,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "drivers/IIC_AP3216C/CMakeFiles/CMakeDirectoryInformation.cmake"
   "drivers/SPIICM-20608/CMakeFiles/CMakeDirectoryInformation.cmake"
   "drivers/BLOCK_DEV/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "drivers/IIO_SPI_ICM_20608/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -110,4 +112,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "drivers/IIC_AP3216C/CMakeFiles/iic_ap3216c_module.dir/DependInfo.cmake"
   "drivers/SPIICM-20608/CMakeFiles/spi_ICM20608_module.dir/DependInfo.cmake"
   "drivers/BLOCK_DEV/CMakeFiles/ramdisk_module.dir/DependInfo.cmake"
+  "drivers/IIO_SPI_ICM_20608/CMakeFiles/iio_icm_20608_module.dir/DependInfo.cmake"
   )
