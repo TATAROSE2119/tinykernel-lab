@@ -1,1 +1,0 @@
-cmd_/home/py/linux_drivers/tinykernel-lab/drivers/LED/leddriver.ko := arm-linux-gnueabihf-ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/py/linux_drivers/tinykernel-lab/drivers/LED/leddriver.ko /home/py/linux_drivers/tinykernel-lab/drivers/LED/leddriver.o /home/py/linux_drivers/tinykernel-lab/drivers/LED/leddriver.mod.o

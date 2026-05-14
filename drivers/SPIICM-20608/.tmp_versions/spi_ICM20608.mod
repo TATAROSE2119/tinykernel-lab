@@ -1,2 +1,0 @@
-/home/py/linux_drivers/tinykernel-lab/drivers/SPIICM-20608/spi_ICM20608.ko
-/home/py/linux_drivers/tinykernel-lab/drivers/SPIICM-20608/spi_ICM20608.o

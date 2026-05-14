@@ -1,1 +1,0 @@
-cmd_/home/py/linux_drivers/tinykernel-lab/drivers/BLOCK_DEV/ramdisk.ko := arm-linux-gnueabihf-ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/py/linux_drivers/tinykernel-lab/drivers/BLOCK_DEV/ramdisk.ko /home/py/linux_drivers/tinykernel-lab/drivers/BLOCK_DEV/ramdisk.o /home/py/linux_drivers/tinykernel-lab/drivers/BLOCK_DEV/ramdisk.mod.o
