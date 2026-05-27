@@ -11,88 +11,87 @@ read -p "选择 [1/2/3/4]: " choice
 
 # 确保NFS目录存在
 setup_nfs_dirs() {
-    echo "确保NFS目录存在..."
-    mkdir -p /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/usr/bin
+  echo "确保NFS目录存在..."
+  mkdir -p /home/tatarose/linux_for_imx6ull/rootfs/lib/modules/4.1.15/
 }
 
 # 拷贝生成的文件到NFS目录
 deploy_files() {
-    echo "拷贝文件到NFS目录..."
-    
-    # 拷贝内核模块
-    if [ -f "drivers/LED/leddriver.ko" ]; then
-        sudo cp drivers/LED/leddriver.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
-        echo "已拷贝 leddrv.ko 到 NFS 目录"
-    else
-        echo "警告: leddrv.ko 未找到"
-    fi
+  echo "拷贝文件到NFS目录..."
 
-    if [ -f "drivers/INPUT_KEY/input_key.ko" ]; then
-        sudo cp drivers/INPUT_KEY/input_key.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
-        echo "已拷贝 input_key.ko 到 NFS 目录"
-    else
-        echo "警告: input_key.ko 未找到"
-    fi
+  # 拷贝内核模块
+  if [ -f "drivers/LED/leddriver.ko" ]; then
+    sudo cp drivers/LED/leddriver.ko /home/tatarose/linux_for_imx6ull/rootfs/lib/modules/4.1.15/
+    echo "已拷贝 leddriver.ko 到 NFS 目录"
+  else
+    echo "警告: leddrv.ko 未找到"
+  fi
 
-    if [ -f "drivers/IIC_AP3216C/iic_ap3216c.ko" ]; then
-        sudo cp drivers/IIC_AP3216C/iic_ap3216c.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
-        echo "已拷贝 iic_ap3216c.ko 到 NFS 目录"
-    else
-        echo "警告: iic_ap3216c.ko 未找到"
-    fi
+  if [ -f "drivers/INPUT_KEY/input_key.ko" ]; then
+    sudo cp drivers/INPUT_KEY/input_key.ko /home/tatarose/linux_for_imx6ull/rootfs/lib/modules/4.1.15/
+    echo "已拷贝 input_key.ko 到 NFS 目录"
+  else
+    echo "警告: input_key.ko 未找到"
+  fi
 
-    if [ -f "drivers/SPIICM-20608/spi_ICM20608.ko" ]; then
-        sudo cp drivers/SPIICM-20608/spi_ICM20608.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
-        echo "已拷贝 spi_ICM20608.ko 到 NFS 目录"
-    else
-        echo "警告: spi_ICM20608.ko 未找到"
-    fi
+  if [ -f "drivers/IIC_AP3216C/iic_ap3216c.ko" ]; then
+    sudo cp drivers/IIC_AP3216C/iic_ap3216c.ko /home/tatarose/linux_for_imx6ull/rootfs/lib/modules/4.1.15/
+    echo "已拷贝 iic_ap3216c.ko 到 NFS 目录"
+  else
+    echo "警告: iic_ap3216c.ko 未找到"
+  fi
 
-    if [ -f "drivers/BLOCK_DEV/ramdisk.ko" ]; then
-        sudo cp drivers/BLOCK_DEV/ramdisk.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
-        echo "已拷贝 ramdisk.ko 到 NFS 目录"
-    else
-        echo "警告: ramdisk.ko 未找到"
-    fi
+  if [ -f "drivers/SPIICM-20608/spi_ICM20608.ko" ]; then
+    sudo cp drivers/SPIICM-20608/spi_ICM20608.ko /home/tatarose/linux_for_imx6ull/rootfs/lib/modules/4.1.15/
+    echo "已拷贝 spi_ICM20608.ko 到 NFS 目录"
+  else
+    echo "警告: spi_ICM20608.ko 未找到"
+  fi
 
-    if [ -f "drivers/IIO_SPI_ICM_20608/iio_icm_20608.ko" ]; then
-        sudo cp drivers/IIO_SPI_ICM_20608/iio_icm_20608.ko /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/
-        echo "已拷贝 iio_icm_20608.ko 到 NFS 目录"
-    else
-        echo "警告: iio_icm_20608.ko 未找到"
-    fi
+  if [ -f "drivers/BLOCK_DEV/ramdisk.ko" ]; then
+    sudo cp drivers/BLOCK_DEV/ramdisk.ko /home/tatarose/linux_for_imx6ull/rootfs/lib/modules/4.1.15/
+    echo "已拷贝 ramdisk.ko 到 NFS 目录"
+  else
+    echo "警告: ramdisk.ko 未找到"
+  fi
 
+  if [ -f "drivers/IIO_SPI_ICM_20608/iio_icm_20608.ko" ]; then
+    sudo cp drivers/IIO_SPI_ICM_20608/iio_icm_20608.ko /home/tatarose/linux_for_imx6ull/rootfs/lib/modules/4.1.15/
+    echo "已拷贝 iio_icm_20608.ko 到 NFS 目录"
+  else
+    echo "警告: iio_icm_20608.ko 未找到"
+  fi
 
-    
-    # 拷贝用户应用程序
-    if [ -f "build/app/myctl" ]; then
-        sudo cp build/app/myctl /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/usr/bin/
-        echo "已拷贝 myctl 到 NFS 目录"
-    else
-        echo "警告: myctl 未找到"
-    fi
+  # 拷贝用户应用程序
+  if [ -f "build/app/myctl" ]; then
+    sudo cp build/app/myctl /home/tatarose/linux_for_imx6ull/rootfs/usr/bin/
+    echo "已拷贝 myctl 到 NFS 目录"
+  else
+    echo "警告: myctl 未找到"
+  fi
 
-    if [ -f "build/app/imx6d" ]; then
-        sudo cp build/app/imx6d /home/py/linux/nfs/rootfs/lib/modules/4.1.15/tinyLinux_IoT_kernellab/usr/bin/
-        echo "已拷贝 imx6d 到 NFS 目录"
-    else
-        echo "警告: imx6d 未找到"
-    fi
+  if [ -f "build/app/imx6d" ]; then
+    sudo cp build/app/imx6d /home/tatarose/linux_for_imx6ull/rootfs/usr/bin/
+    echo "已拷贝 imx6d 到 NFS 目录"
+  else
+    echo "警告: imx6d 未找到"
+  fi
 }
 
 case $choice in
-    1) 
-        make clean
-        make build
-        setup_nfs_dirs
-        deploy_files
-        ;;
-    2) make compile_db ;;
-    3) make clean ;;
-    4) 
-        make build
-        setup_nfs_dirs
-        deploy_files
-        ;;
-    *) echo "无效选择" ;;
+1)
+  make clean
+  make build
+  setup_nfs_dirs
+  deploy_files
+  ;;
+2) make compile_db ;;
+3) make clean ;;
+4)
+  make build
+  setup_nfs_dirs
+  deploy_files
+  ;;
+*) echo "无效选择" ;;
 esac
+

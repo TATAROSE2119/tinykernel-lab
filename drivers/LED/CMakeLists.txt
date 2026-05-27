@@ -1,5 +1,5 @@
 # drivers/LED/CMakeLists.txt
-set(MODULE_NAME leddrv)
+set(MODULE_NAME leddriver)
 set(MODULE_SRC leddriver.c)
 
 # ========== 使用内核 make 编译 .ko ==========

@@ -14,52 +14,141 @@
 #define DEVICE_FILE_NAME_INPUT_KEY "/dev/input/event1"
 #define DEVICE_FILE_NAME_AP3216C "/dev/ap3216c"
 #define DEVICE_FILE_NAME_ICM20608 "/dev/icm20608"
-int control_icm20608(char *device) { 
-        int fd, return_value;
-        signed int data[7];
 
-        signed int gyro_x_adc, gyro_y_adc, gyro_z_adc;
-        signed int accel_x_adc, accel_y_adc, accel_z_adc;
-        signed int temp_adc;
+/* IIO sysfs 路径 */
+#define IIO_DEVICE_PATH "/sys/bus/iio/devices/iio:device0"
 
-        float gyro_x_act,gyro_y_act, gyro_z_act;
-        float accel_x_act, accel_y_act, accel_z_act;
-        float temp_act;
+/* 滑动平均滤波窗口大小 */
+#define FILTER_WINDOW 8
 
+/* 滑动平均滤波器 */
+typedef struct {
+        float buf[FILTER_WINDOW];
+        int idx;
+        int count;
+        float sum;
+} moving_avg_t;
 
-        fd=open(device, O_RDWR);
-        if (fd < 0){
-                printf("open %s error\n", device);
-                return -1;
-        }
-        while (1) { 
-                return_value = read(fd, data, sizeof(data));
-                if(return_value >= (int)sizeof(data)){
-                        accel_x_adc=data[0];
-                        accel_y_adc=data[1];
-                        accel_z_adc=data[2];
-                        temp_adc=data[3];
-                        gyro_x_adc=data[4];
-                        gyro_y_adc=data[5];
-                        gyro_z_adc=data[6];
+static void ma_init(moving_avg_t *f) {
+        int i;
+        for (i = 0; i < FILTER_WINDOW; i++) f->buf[i] = 0.0f;
+        f->idx = 0;
+        f->count = 0;
+        f->sum = 0.0f;
+}
 
-                        gyro_x_act = (float)(gyro_x_adc)/16.4;
-                        gyro_y_act = (float)(gyro_y_adc)/16.4;
-                        gyro_z_act = (float)(gyro_z_adc)/16.4;
-                        temp_act = ((float)(temp_adc))/326.8f+25.0f;
-                        accel_x_act = (float)(accel_x_adc)/2048;
-                        accel_y_act = (float)(accel_y_adc)/2048;
-                        accel_z_act = (float)(accel_z_adc)/2048;
+static float ma_filter(moving_avg_t *f, float val) {
+        f->sum -= f->buf[f->idx];
+        f->buf[f->idx] = val;
+        f->sum += val;
+        f->idx = (f->idx + 1) % FILTER_WINDOW;
+        if (f->count < FILTER_WINDOW) f->count++;
+        return f->sum / (float)f->count;
+}
 
-
-                        printf("icm20608 data:\r\n");
-                        printf("gyro_x_act=%.2f,gyro_y_act=%.2f,gyro_z_act=%.2f\r\n",gyro_x_act,gyro_y_act,gyro_z_act);
-                        printf("accel_x_act=%.2f,accel_y_act=%.2f,accel_z_act=%.2f\r\n",accel_x_act,accel_y_act,accel_z_act);
-                        printf("temp_act=%.2f\r\n",temp_act);
-                }
-                usleep(300000);
-        }
+/* 辅助函数：从 sysfs 读取一个整数 */
+static int read_sysfs_int(const char *attr) {
+        char path[256];
+        char buf[32];
+        int fd, ret;
+        snprintf(path, sizeof(path), "%s/%s", IIO_DEVICE_PATH, attr);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) return 0;
+        ret = read(fd, buf, sizeof(buf) - 1);
         close(fd);
+        if (ret < 0) return 0;
+        buf[ret] = '\0';
+        return atoi(buf);
+}
+
+/* 绘制进度条: val 在 [-range, +range] 范围内, 宽度 width */
+static void draw_bar(char *bar, int width, float val, float range) {
+        int i, mid = width / 2;
+        int blen = (int)((val + range) / (2.0f * range) * (float)width);
+        if (blen < 0) blen = 0;
+        if (blen > width) blen = width;
+        for (i = 0; i < blen; i++) bar[i] = '=';
+        for (; i < width; i++) bar[i] = ' ';
+        bar[mid] = '|';
+        bar[width] = '\0';
+}
+
+int control_icm20608(char *device) {
+        int gx_raw, gy_raw, gz_raw;
+        int ax_raw, ay_raw, az_raw;
+        int temp_raw;
+        float gx, gy, gz;
+        float ax, ay, az;
+        float temp_c;
+        char bar[41];
+
+        /* 7 个滤波器: ax, ay, az, gx, gy, gz, temp */
+        moving_avg_t fax, fay, faz, fgx, fgy, fgz, ftemp;
+        ma_init(&fax); ma_init(&fay); ma_init(&faz);
+        ma_init(&fgx); ma_init(&fgy); ma_init(&fgz);
+        ma_init(&ftemp);
+
+        (void)device;
+
+        printf("\033[2J\033[H");
+        printf("╔══════════════════════════════════════════════════════════╗\n");
+        printf("║       ICM-20608  6-Axis + Temp  Monitor (Filtered)     ║\n");
+        printf("╠══════════════════════════════════════════════════════════╣\n");
+
+        while (1) {
+                /* ---- 加速度计 ---- */
+                ax_raw = read_sysfs_int("in_accel_x_raw");
+                ay_raw = read_sysfs_int("in_accel_y_raw");
+                az_raw = read_sysfs_int("in_accel_z_raw");
+                ax = ma_filter(&fax, ax_raw * 0.000598f / 9.8f);
+                ay = ma_filter(&fay, ay_raw * 0.000598f / 9.8f);
+                az = ma_filter(&faz, az_raw * 0.000598f / 9.8f);
+
+                /* ---- 陀螺仪 ---- */
+                gx_raw = read_sysfs_int("in_anglvel_x_raw");
+                gy_raw = read_sysfs_int("in_anglvel_y_raw");
+                gz_raw = read_sysfs_int("in_anglvel_z_raw");
+                gx = ma_filter(&fgx, gx_raw * 0.001065f);
+                gy = ma_filter(&fgy, gy_raw * 0.001065f);
+                gz = ma_filter(&fgz, gz_raw * 0.001065f);
+
+                /* ---- 温度 ---- */
+                temp_raw = read_sysfs_int("in_temp_raw");
+                temp_c = ma_filter(&ftemp, temp_raw / 326.8f + 25.0f);
+
+                printf("\033[5;0H");
+
+                /* 加速度 */
+                draw_bar(bar, 40, ax, 2.0f);
+                printf("║ Accel X [%s] %+6.3fg (%6d) ║\n", bar, ax, ax_raw);
+                draw_bar(bar, 40, ay, 2.0f);
+                printf("║ Accel Y [%s] %+6.3fg (%6d) ║\n", bar, ay, ay_raw);
+                draw_bar(bar, 40, az, 2.0f);
+                printf("║ Accel Z [%s] %+6.3fg (%6d) ║\n", bar, az, az_raw);
+
+                printf("╠══════════════════════════════════════════════════════════╣\n");
+
+                /* 陀螺仪 */
+                draw_bar(bar, 40, gx, 5.0f);
+                printf("║ Gyro  X [%s] %+7.3f rad/s (%6d) ║\n", bar, gx, gx_raw);
+                draw_bar(bar, 40, gy, 5.0f);
+                printf("║ Gyro  Y [%s] %+7.3f rad/s (%6d) ║\n", bar, gy, gy_raw);
+                draw_bar(bar, 40, gz, 5.0f);
+                printf("║ Gyro  Z [%s] %+7.3f rad/s (%6d) ║\n", bar, gz, gz_raw);
+
+                printf("╠══════════════════════════════════════════════════════════╣\n");
+
+                /* 温度 */
+                printf("║ Temp     %+8.2f °C   (raw: %6d)                       ║\n",
+                       temp_c, temp_raw);
+
+                printf("╠══════════════════════════════════════════════════════════╣\n");
+                printf("║ Accel ±2g | Gyro ±2000dps | Filter W=%d | 100ms refresh║\n",
+                       FILTER_WINDOW);
+                printf("╚══════════════════════════════════════════════════════════╝\n");
+
+                usleep(100000);
+        }
         return 0;
 }
 int control_ap3216c(char *device) {

@@ -1,8 +1,8 @@
-KERNELDIR := /home/py/linux/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek
+KERNELDIR := /home/tatarose/linux_for_imx6ull/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek
 CURRENT_PATH := $(shell pwd)
 
-ARCH ?= arm
-CROSS_COMPILE ?= arm-linux-gnueabihf-
+ARCH := arm
+CROSS_COMPILE := arm-linux-gnueabihf-
 
 obj-m :=  input_key.o
 

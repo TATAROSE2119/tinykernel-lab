@@ -18,6 +18,29 @@
 #define DEVICE_FILE_NAME_INPUT_KEY "/dev/input/event1"
 #define DEVICE_FILE_NAME_AP3216C "/dev/ap3216c"
 #define DEVICE_FILE_NAME_ICM20608 "/dev/icm20608"
+/* IIO sysfs 路径 */
+#define IIO_DEVICE_PATH "/sys/bus/iio/devices/iio:device0"
+
+/* 滑动平均滤波窗口大小 */
+#define FILTER_WINDOW 8
+
+/* 滑动平均滤波器 */
+typedef struct {
+        float buf[FILTER_WINDOW];
+        int idx;
+        int count;
+        float sum;
+} moving_avg_t;
+
+static float ma_filter(moving_avg_t *f, float val) {
+        f->sum -= f->buf[f->idx];
+        f->buf[f->idx] = val;
+        f->sum += val;
+        f->idx = (f->idx + 1) % FILTER_WINDOW;
+        if (f->count < FILTER_WINDOW) f->count++;
+        return f->sum / (float)f->count;
+}
+
 // 任务类型枚举
 typedef enum {
         TASK_READ_AP3216C,
@@ -162,38 +185,106 @@ void task_read_ap3216c(void *arg) {
         close(fd);
 }
 void task_read_icm20608(void *arg) {
-        const char *dev = (const char *)arg;
-        float gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z, temp;
-        if (!dev) {
-                fprintf(stderr, "task_read_icm20608:dev path is NULL\r\n");
-                return;
-        }
-        int fd = open(dev, O_RDONLY);
-        if (fd < 0) {
-                perror("task_read_icm20608:open dev fail\r\n");
-                return;
-        }
-        signed int data[7];
-        ssize_t n = read(fd, data, sizeof(data));
-        if (n < (ssize_t)sizeof(data)) {
-                fprintf(stderr,
-                        "task_read_icm20608:read length is not right\r\n");
-                close(fd);
-                return;
+        char path[256];
+        char buf[32];
+        int fd, ret;
+        int ax_raw, ay_raw, az_raw;
+        int gx_raw, gy_raw, gz_raw;
+        int temp_raw;
+        float ax, ay, az;
+        float gx, gy, gz;
+        float temp_c;
+
+        /* 静态变量保持滤波状态 */
+        static moving_avg_t fax, fay, faz, fgx, fgy, fgz, ftemp;
+        static int initialized = 0;
+        if (!initialized) {
+                int i;
+                for (i = 0; i < FILTER_WINDOW; i++) {
+                        fax.buf[i] = fay.buf[i] = faz.buf[i] = 0.0f;
+                        fgx.buf[i] = fgy.buf[i] = fgz.buf[i] = 0.0f;
+                        ftemp.buf[i] = 0.0f;
+                }
+                fax.idx = fay.idx = faz.idx = 0;
+                fgx.idx = fgy.idx = fgz.idx = 0;
+                ftemp.idx = 0;
+                fax.count = fay.count = faz.count = 0;
+                fgx.count = fgy.count = fgz.count = 0;
+                ftemp.count = 0;
+                fax.sum = fay.sum = faz.sum = 0.0f;
+                fgx.sum = fgy.sum = fgz.sum = 0.0f;
+                ftemp.sum = 0.0f;
+                initialized = 1;
         }
 
-        gyro_x = data[4] / 16.4f;
-        gyro_y = data[5] / 16.4f;
-        gyro_z = data[6] / 16.4f;
-        accel_x = data[0] / 2048.0f;
-        accel_y = data[1] / 2048.0f;
-        accel_z = data[2] / 2048.0f;
-        temp = data[3] / 326.8f + 25.0f;
-        printf("------------------------------\r\n");
-        printf("###: ICM20608 -> G(%.2f,%.2f,%.2f) A(%.2f,%.2f,%.2f) "
-               "T=%.2f\r\n",
-               gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z, temp);
+        (void)arg;
+
+        /* 加速度 */
+        snprintf(path, sizeof(path), "%s/in_accel_x_raw", IIO_DEVICE_PATH);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) return;
+        ret = read(fd, buf, sizeof(buf) - 1);
         close(fd);
+        if (ret < 0) return;
+        buf[ret] = '\0'; ax_raw = atoi(buf);
+
+        snprintf(path, sizeof(path), "%s/in_accel_y_raw", IIO_DEVICE_PATH);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) return;
+        ret = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        buf[ret] = '\0'; ay_raw = atoi(buf);
+
+        snprintf(path, sizeof(path), "%s/in_accel_z_raw", IIO_DEVICE_PATH);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) return;
+        ret = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        buf[ret] = '\0'; az_raw = atoi(buf);
+
+        /* 陀螺仪 */
+        snprintf(path, sizeof(path), "%s/in_anglvel_x_raw", IIO_DEVICE_PATH);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) return;
+        ret = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        buf[ret] = '\0'; gx_raw = atoi(buf);
+
+        snprintf(path, sizeof(path), "%s/in_anglvel_y_raw", IIO_DEVICE_PATH);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) return;
+        ret = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        buf[ret] = '\0'; gy_raw = atoi(buf);
+
+        snprintf(path, sizeof(path), "%s/in_anglvel_z_raw", IIO_DEVICE_PATH);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) return;
+        ret = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        buf[ret] = '\0'; gz_raw = atoi(buf);
+
+        /* 温度 */
+        snprintf(path, sizeof(path), "%s/in_temp_raw", IIO_DEVICE_PATH);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) return;
+        ret = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        buf[ret] = '\0'; temp_raw = atoi(buf);
+
+        /* 转换 + 滤波 */
+        ax = ma_filter(&fax, ax_raw * 0.000598f / 9.8f);
+        ay = ma_filter(&fay, ay_raw * 0.000598f / 9.8f);
+        az = ma_filter(&faz, az_raw * 0.000598f / 9.8f);
+        gx = ma_filter(&fgx, gx_raw * 0.001065f);
+        gy = ma_filter(&fgy, gy_raw * 0.001065f);
+        gz = ma_filter(&fgz, gz_raw * 0.001065f);
+        temp_c = ma_filter(&ftemp, temp_raw / 326.8f + 25.0f);
+
+        printf("------------------------------\r\n");
+        printf("ICM20608 | Accel(g): X%+6.3f Y%+6.3f Z%+6.3f | "
+               "Gyro(rad/s): X%+7.3f Y%+7.3f Z%+7.3f | Temp: %+6.2f°C\r\n",
+               ax, ay, az, gx, gy, gz, temp_c);
 }
 
 int creat_periodic_timer(int interval_ms) {

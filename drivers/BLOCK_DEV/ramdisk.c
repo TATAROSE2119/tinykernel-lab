@@ -94,7 +94,8 @@ struct ramdisk_dev ramdiskdev;
         int err = 0;
 
         //获取bio里面的缓冲区
-        // 并不是所有的块设备都是用memcpy，还有SD卡，EMMC设备，现在使用内存模拟的
+        //
+并不是所有的块设备都是用memcpy，还有SD卡，EMMC设备，现在使用内存模拟的
         // 读:从磁盘读数据到内存缓冲区
         // 写:从内存缓冲区读数据到磁盘
         void *buffer = bio_data(req->bio);
@@ -106,25 +107,27 @@ struct ramdisk_dev ramdiskdev;
         return err;
 }
  */
- //制造请求函数
+// 制造请求函数
 static void ramdisk_make_request(struct request_queue *q, struct bio *bio) {
         int offset;
         struct bio_vec bvec;
         struct bvec_iter iter;
         int len;
 
-        offset = bio->bi_iter.bi_sector << 9; //获取扇区地址,改为字节地址。
+        offset = bio->bi_iter.bi_sector << 9; // 获取扇区地址,改为字节地址。
 
         bio_for_each_segment(bvec, bio, iter) {
                 char *ptr = page_address(bvec.bv_page) +
-                            bvec.bv_offset; //获取物理地址
+                            bvec.bv_offset; // 获取物理地址
                 len = bvec.bv_len;
                 if (bio_data_dir(bio) == READ) {
-                        memcpy(ptr, ramdiskdev.ramdisk_buff + offset, len);//读数据
+                        memcpy(ptr, ramdiskdev.ramdisk_buff + offset,
+                               len); // 读数据
                 } else {
-                        memcpy(ramdiskdev.ramdisk_buff+offset, ptr, len);//写数据
+                        memcpy(ramdiskdev.ramdisk_buff + offset, ptr,
+                               len); // 写数据
                 }
-                offset += len; //移动偏移
+                offset += len; // 移动偏移
         }
         set_bit(BIO_UPTODATE, &bio->bi_flags);
         bio_endio(bio, 0);
@@ -151,11 +154,12 @@ static int __init ramdisk_init(void) {
         spin_lock_init(&ramdiskdev.lock);
 
         ramdiskdev.queue = blk_alloc_queue(GFP_KERNEL);
-        if (!ramdiskdev.queue) {//申请请求队列失败
+        if (!ramdiskdev.queue) { // 申请请求队列失败
                 ret = -EINVAL;
                 del_gendisk(ramdiskdev.gendisk);
         }
-        blk_queue_make_request(ramdiskdev.queue, ramdisk_make_request);//添加处理函数
+        blk_queue_make_request(ramdiskdev.queue,
+                               ramdisk_make_request); // 添加处理函数
 
         ramdiskdev.gendisk->major = ramdiskdev.major;
         ramdiskdev.gendisk->first_minor = 0;

@@ -1,7 +1,7 @@
 # Makefile（根目录）
-PROJECT_ROOT := $(shell pwd)
+PROJECT_ROOT := /home/tatarose/tinykernel-lab
 BUILD_DIR    := $(PROJECT_ROOT)/build
-KERNELDIR    := /home/py/linux/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek
+KERNELDIR    := /home/tatarose/linux_for_imx6ull/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek/
 ARCH         ?= arm
 CROSS_COMPILE?= arm-linux-gnueabihf-
 
@@ -13,7 +13,9 @@ all: build
 cmake-config:
 	@mkdir -p $(BUILD_DIR)
 	@cd $(BUILD_DIR) && \
-	 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+	 ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) \
+	 cmake -DCMAKE_TOOLCHAIN_FILE=$(PROJECT_ROOT)/cmake/toolchains/Toolchain-arm-linux-gnueabihf.cmake \
+	       -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 
 # ========= 2. 构建（用户态 + 内核模块）=========
 cmake-build: compile_db
@@ -35,7 +37,8 @@ build: cmake-build
 compile_db: cmake-config
 	@echo "Generating compile_commands.json with bear..."
 	@cd $(BUILD_DIR) && \
-	 bear --cdb $(PROJECT_ROOT)/compile_commands.json cmake --build .
+	 bear --output $(PROJECT_ROOT)/compile_commands.json -- cmake --build .
+
 
 # ========= 5. 清理 =========
 clean:
