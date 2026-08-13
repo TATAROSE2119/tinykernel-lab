@@ -1,9 +1,23 @@
 # Makefile（根目录）
-PROJECT_ROOT := /home/tatarose/tinykernel-lab
-BUILD_DIR    := $(PROJECT_ROOT)/build
-KERNELDIR    := /home/tatarose/linux_for_imx6ull/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek/
+PROJECT_ROOT ?= $(CURDIR)
+BUILD_DIR    ?= $(PROJECT_ROOT)/build
+KERNELDIR    ?= /home/tatarose_laptop_wsl/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek
+NFS_ROOTFS   ?= /home/tatarose_laptop_wsl/rootfs
 ARCH         ?= arm
 CROSS_COMPILE?= arm-linux-gnueabihf-
+TOOLCHAIN_PREFIX ?=
+
+CMAKE_ARGS := -DCMAKE_TOOLCHAIN_FILE=$(PROJECT_ROOT)/cmake/toolchains/Toolchain-arm-linux-gnueabihf.cmake
+CMAKE_ARGS += -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+CMAKE_ARGS += -DKERNEL_SRC=$(KERNELDIR)
+CMAKE_ARGS += -DNFS_ROOTFS=$(NFS_ROOTFS)
+CMAKE_ARGS += -DKERNEL_ARCH=$(ARCH)
+CMAKE_ARGS += -DKERNEL_CROSS_COMPILE=$(CROSS_COMPILE)
+CMAKE_ARGS += -DCROSS_COMPILE=$(CROSS_COMPILE)
+
+ifneq ($(strip $(TOOLCHAIN_PREFIX)),)
+CMAKE_ARGS += -DTOOLCHAIN_PREFIX=$(TOOLCHAIN_PREFIX)
+endif
 
 .PHONY: all build cmake-config cmake-build compile_db clean
 
@@ -14,8 +28,7 @@ cmake-config:
 	@mkdir -p $(BUILD_DIR)
 	@cd $(BUILD_DIR) && \
 	 ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) \
-	 cmake -DCMAKE_TOOLCHAIN_FILE=$(PROJECT_ROOT)/cmake/toolchains/Toolchain-arm-linux-gnueabihf.cmake \
-	       -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+	 cmake $(CMAKE_ARGS) ..
 
 # ========= 2. 构建（用户态 + 内核模块）=========
 cmake-build: compile_db

@@ -1,8 +1,6 @@
-# drivers/LED/CMakeLists.txt
-set(MODULE_NAME leddriver)
-set(MODULE_SRC leddriver.c)
+set(MODULE_NAME iio_ap3216c)
+set(MODULE_SRC iio_ap3216c.c)
 
-# ========== 使用内核 make 编译 .ko ==========
 add_custom_command(
     OUTPUT ${MODULE_NAME}.ko
     COMMAND ${CMAKE_MAKE_PROGRAM}
@@ -17,6 +15,6 @@ add_custom_command(
 )
 
 add_custom_target(
-    ${MODULE_NAME}_module ALL 
+    ${MODULE_NAME}_module ALL
     DEPENDS ${MODULE_NAME}.ko
-    )
+)

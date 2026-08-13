@@ -36,6 +36,7 @@ tinykernel-lab/
 │   ├── IIC_AP3216C/            # I²C client：三合一光/接近传感器
 │   ├── SPIICM-20608/           # SPI char dev：六轴陀螺/加速度计
 │   ├── IIO_SPI_ICM_20608/      # 同一传感器的 IIO 子系统实现
+│   ├── IIO_IIC_AP3216C/        # AP3216C 的 IIO 子系统实现
 │   └── BLOCK_DEV/              # ramdisk 块设备驱动
 ├── docs/
 │   ├── develop_blog.md         # 开发笔记 / 设计思路（主文档）
@@ -52,6 +53,7 @@ tinykernel-lab/
 | `drivers/LED` | `leddriver.ko` | platform / cdev | `/dev/led-dts-platform` | DTS 匹配 + GPIO 控制 LED |
 | `drivers/INPUT_KEY` | `input_key.ko` | input | `/dev/input/eventX` | GPIO 中断 + 去抖，上报 `EV_KEY` |
 | `drivers/IIC_AP3216C` | `iic_ap3216c.ko` | i2c | `/dev/ap3216c` | 环境光 / 接近 / IR 读取 |
+| `drivers/IIO_IIC_AP3216C` | `iio_ap3216c.ko` | i2c / iio | `/sys/bus/iio/devices/...` | AP3216C 的 IIO raw 通道 |
 | `drivers/SPIICM-20608` | `spi_ICM20608.ko` | spi / cdev | `/dev/icm20608` | 传统字符设备方式 |
 | `drivers/IIO_SPI_ICM_20608` | `iio_icm_20608.ko` | spi / iio | `/sys/bus/iio/devices/...` | 通过 IIO 框架暴露 |
 | `drivers/BLOCK_DEV` | `ramdisk.ko` | block | `/dev/ramdiskX` | 内存块设备示例 |
@@ -77,18 +79,45 @@ tinykernel-lab/
 
 * 已编译好的 Alientek i.MX6ULL 内核源码树（用于 `M=` 外部模块编译）
 * Linaro `arm-linux-gnueabihf-` 工具链
-* `cmake >= 3.5`，`make`，`bear`（生成 `compile_commands.json`，可选）
+* `cmake >= 3.5`，`make`，`bear`（生成 `compile_commands.json`，可选），`jq`（合并编译数据库，可选）
 
-### 修改路径
+### 配置路径
 
-构建前先按实际环境修改三处路径：
+构建路径都可以通过环境变量或 `make` 参数覆盖，默认按当前 WSL 工作区配置：
 
-| 文件 | 变量 | 默认值 |
+| 变量 | 默认值 |
 | --- | --- | --- |
-| `CMakeLists.txt` | `KERNEL_SRC` | `/home/py/linux/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek` |
-| `CMakeLists.txt` | `NFS_ROOTFS` | `/home/py/linux/nfs/rootfs` |
-| `cmake/toolchains/Toolchain-arm-linux-gnueabihf.cmake` | `TOOLCHAIN_PREFIX` | `/usr/local/arm/gcc-linaro-4.9.4-2017.01-...` |
-| 各 `drivers/*/Makefile` | `KERNELDIR` | 同上 |
+| `KERNELDIR` | `/home/tatarose_laptop_wsl/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek` |
+| `NFS_ROOTFS` | `/home/tatarose_laptop_wsl/rootfs` |
+| `KERNEL_VERSION` | `4.1.15` |
+| `ARCH` | `arm` |
+| `CROSS_COMPILE` | `arm-linux-gnueabihf-` |
+| `TOOLCHAIN_PREFIX` | 空；设置后使用 `${TOOLCHAIN_PREFIX}/bin/arm-linux-gnueabihf-gcc` |
+
+可以复制 `env.example` 后按本机路径调整：
+
+```bash
+cp env.example env.local
+source env.local
+```
+
+也可以直接命令行覆盖：
+
+```bash
+make build KERNELDIR=/path/to/linux-imx NFS_ROOTFS=/path/to/rootfs TOOLCHAIN_PREFIX=/path/to/gcc-linaro
+```
+
+内核树需要先完成配置并生成外部模块编译所需文件。若 `include/generated/autoconf.h`
+或 `Module.symvers` 缺失，先在内核源码目录执行：
+
+```bash
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- oldconfig
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- prepare scripts
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules
+```
+
+当前内核配置启用 `CONFIG_MODVERSIONS=y` 时，建议使用完整内核编译生成的
+`Module.symvers`，否则外部模块可能出现符号版本问题。
 
 ### 一键构建 + 部署
 
@@ -101,7 +130,7 @@ tinykernel-lab/
 ```
 
 脚本会把所有 `.ko` 与 `myctl`、`imx6d` 拷贝到：
-`$(NFS_ROOTFS)/lib/modules/4.1.15/tinyLinux_IoT_kernellab/`
+`$(NFS_ROOTFS)/lib/modules/$(KERNEL_VERSION)/` 和 `$(NFS_ROOTFS)/usr/bin/`
 
 ### 手动构建
 

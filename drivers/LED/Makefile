@@ -1,9 +1,9 @@
-KERNELDIR     := /home/tatarose/linux_for_imx6ull/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek
+KERNELDIR     ?= /home/tatarose_laptop_wsl/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek
 CURRENT_PATH  := $(shell pwd)
 
 # 交叉编译可选（不需要就删掉这两行）
-ARCH          := arm
-CROSS_COMPILE := arm-linux-gnueabihf-
+ARCH          ?= arm
+CROSS_COMPILE ?= arm-linux-gnueabihf-
 
 # 只编译内核模块
 obj-m :=  leddriver.o

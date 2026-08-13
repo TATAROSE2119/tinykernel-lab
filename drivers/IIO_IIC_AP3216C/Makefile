@@ -4,7 +4,7 @@ CURRENT_PATH := $(shell pwd)
 ARCH ?= arm
 CROSS_COMPILE ?= arm-linux-gnueabihf-
 
-obj-m :=  iic_ap3216c.o
+obj-m := iio_ap3216c.o
 
 .PHONY: all build kernel_modules clean compile_db app
 
@@ -16,7 +16,7 @@ kernel_modules:
 	$(MAKE) -C $(KERNELDIR) M=$(CURRENT_PATH) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(CURRENT_PATH) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) clean
-	rm -f iic_ap3216c.ko
+	rm -f iio_ap3216c.ko
 	@rm -f compile_commands.json
 compile_db:
 	bear $(MAKE) -C $(KERNELDIR) M=$(CURRENT_PATH) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
