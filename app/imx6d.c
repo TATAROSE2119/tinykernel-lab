@@ -1,16 +1,11 @@
-#include <bits/pthreadtypes.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
-#include <stdint.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/epoll.h>
 #include <sys/timerfd.h>
-//#include <sys/dispatch.h>
-
-#include <pthread.h>
 #include <unistd.h>
 #define CMD_LED_ON 1
 #define CMD_LED_OFF 0
@@ -412,7 +407,18 @@ int main(void) {
                         break;
                 }
                 if (e.events & EPOLLIN) {
-                        read(tfd, &exp, sizeof(exp));
+                        ssize_t bytes_read = read(tfd, &exp, sizeof(exp));
+                        if (bytes_read != sizeof(exp)) {
+                                if (bytes_read < 0 && errno == EINTR)
+                                        continue;
+                                if (bytes_read < 0)
+                                        perror("timerfd read failed");
+                                else
+                                        fprintf(stderr,
+                                                "timerfd short read: %zd bytes\n",
+                                                bytes_read);
+                                break;
+                        }
 
                         thread_pool_submit(pool, TASK_READ_AP3216C,
                                            task_read_ap3216c,

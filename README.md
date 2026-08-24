@@ -79,7 +79,7 @@ tinykernel-lab/
 
 * 已编译好的 Alientek i.MX6ULL 内核源码树（用于 `M=` 外部模块编译）
 * Linaro `arm-linux-gnueabihf-` 工具链
-* `cmake >= 3.5`，`make`，`bear`（生成 `compile_commands.json`，可选），`jq`（合并编译数据库，可选）
+* `cmake >= 3.5`，`make`，`bear`（生成完整的 `compile_commands.json`，可选）
 
 ### 配置路径
 

@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 3.5)
+
+foreach(required_var PRIMARY SECONDARY OUTPUT)
+  if(NOT DEFINED ${required_var})
+    message(FATAL_ERROR "Missing -D${required_var}=...")
+  endif()
+endforeach()
+
+function(read_json_array_entries input_path output_var)
+  set(entries "")
+  if(EXISTS "${input_path}")
+    file(READ "${input_path}" entries)
+    string(REGEX REPLACE "^[ \t\r\n]*\\[" "" entries "${entries}")
+    string(REGEX REPLACE "\\][ \t\r\n]*$" "" entries "${entries}")
+    string(STRIP "${entries}" entries)
+  endif()
+  set(${output_var} "${entries}" PARENT_SCOPE)
+endfunction()
+
+read_json_array_entries("${PRIMARY}" primary_entries)
+read_json_array_entries("${SECONDARY}" secondary_entries)
+
+set(merged_entries "${primary_entries}")
+if(NOT "${secondary_entries}" STREQUAL "")
+  if(NOT "${merged_entries}" STREQUAL "")
+    string(APPEND merged_entries ",\n")
+  endif()
+  string(APPEND merged_entries "${secondary_entries}")
+endif()
+
+file(WRITE "${OUTPUT}" "[\n${merged_entries}\n]\n")

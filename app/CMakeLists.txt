@@ -1,7 +1,10 @@
 # app/CMakeLists.txt
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads REQUIRED)
+
 add_executable(myctl myctl.c)
 add_executable(imx6d imx6d.c)
-target_link_libraries(imx6d pthread)
+target_link_libraries(imx6d PRIVATE Threads::Threads)
 
 # 优化体积 - 根据 CMake 版本使用不同命令
 target_compile_options(myctl PRIVATE -Os)
@@ -27,4 +30,3 @@ set_target_properties(myctl PROPERTIES
 set_target_properties(imx6d PROPERTIES
     COMPILE_FLAGS "-Wall -O2"
 )
-

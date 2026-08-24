@@ -2,6 +2,8 @@
 
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR arm)
+set(TINYKERNEL_TOOLCHAIN_ACTIVE TRUE CACHE INTERNAL
+    "TinyKernel ARM cross toolchain was loaded")
 
 set(TOOLCHAIN_PREFIX "" CACHE PATH "Optional Linaro toolchain install prefix")
 set(CROSS_COMPILE "arm-linux-gnueabihf-" CACHE STRING "Cross compiler prefix")
@@ -20,6 +22,9 @@ else()
     set(CMAKE_C_COMPILER ${ARM_GCC})
     set(CMAKE_CXX_COMPILER ${ARM_GXX})
 endif()
+
+set(TINYKERNEL_C_COMPILER "${CMAKE_C_COMPILER}" CACHE INTERNAL
+    "C compiler selected by the TinyKernel ARM toolchain")
 
 if(TOOLCHAIN_PREFIX AND EXISTS ${TOOLCHAIN_PREFIX}/arm-linux-gnueabihf/libc)
     set(CMAKE_SYSROOT ${TOOLCHAIN_PREFIX}/arm-linux-gnueabihf/libc)
@@ -43,5 +48,7 @@ if(NOT EXISTS ${CMAKE_C_COMPILER})
     message(FATAL_ERROR "Cross compiler not found: ${CMAKE_C_COMPILER}")
 endif()
 
-# 强制使用 -march=armv7-a（i.MX6ULL 必须）
-add_compile_options(-march=armv7-a -mtune=cortex-a7 -mfpu=neon -mfloat-abi=hard)
+# i.MX6ULL / Cortex-A7 ABI flags. CMAKE_C_FLAGS_INIT is intended for use in a
+# toolchain file and is applied when CMake first initializes the compiler.
+set(CMAKE_C_FLAGS_INIT
+    "-march=armv7-a -mtune=cortex-a7 -mfpu=neon -mfloat-abi=hard")
