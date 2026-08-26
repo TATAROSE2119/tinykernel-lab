@@ -1,9 +1,13 @@
+#include <ctype.h>
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/epoll.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
@@ -11,10 +15,10 @@
 #define CMD_LED_OFF 0
 #define DEVICE_FILE_NAME_LED "/dev/led-dts-platform"
 #define DEVICE_FILE_NAME_INPUT_KEY "/dev/input/event1"
-#define DEVICE_FILE_NAME_AP3216C "/dev/ap3216c"
-#define DEVICE_FILE_NAME_ICM20608 "/dev/icm20608"
-/* IIO sysfs 路径 */
-#define IIO_DEVICE_PATH "/sys/bus/iio/devices/iio:device0"
+
+#define IIO_SYSFS_BASE "/sys/bus/iio/devices"
+#define IIO_PATH_SIZE 256
+#define IIO_VALUE_SIZE 64
 
 /* 滑动平均滤波窗口大小 */
 #define FILTER_WINDOW 8
@@ -32,8 +36,176 @@ static float ma_filter(moving_avg_t *f, float val) {
         f->buf[f->idx] = val;
         f->sum += val;
         f->idx = (f->idx + 1) % FILTER_WINDOW;
-        if (f->count < FILTER_WINDOW) f->count++;
+        if (f->count < FILTER_WINDOW)
+                f->count++;
         return f->sum / (float)f->count;
+}
+
+static int read_text_file(const char *path, char *buf, size_t buf_size) {
+        ssize_t count;
+        int fd;
+        int saved_errno;
+
+        if (!path || !buf || buf_size < 2)
+                return -EINVAL;
+
+        fd = open(path, O_RDONLY);
+        if (fd < 0)
+                return -errno;
+
+        do {
+                count = read(fd, buf, buf_size - 1);
+        } while (count < 0 && errno == EINTR);
+
+        saved_errno = errno;
+        close(fd);
+
+        if (count < 0)
+                return -saved_errno;
+        if (count == 0)
+                return -EIO;
+
+        buf[count] = '\0';
+        return 0;
+}
+
+static int make_iio_attr_path(char *path, size_t path_size,
+                              const char *device_path, const char *attr) {
+        int count;
+
+        if (!path || !device_path || !attr)
+                return -EINVAL;
+
+        count = snprintf(path, path_size, "%s/%s", device_path, attr);
+        if (count < 0 || (size_t)count >= path_size)
+                return -ENAMETOOLONG;
+
+        return 0;
+}
+
+static int read_iio_int(const char *device_path, const char *attr, int *value) {
+        char path[IIO_PATH_SIZE];
+        char buf[IIO_VALUE_SIZE];
+        char *end;
+        long parsed;
+        int ret;
+
+        if (!value)
+                return -EINVAL;
+
+        ret = make_iio_attr_path(path, sizeof(path), device_path, attr);
+        if (ret)
+                return ret;
+
+        ret = read_text_file(path, buf, sizeof(buf));
+        if (ret)
+                return ret;
+
+        errno = 0;
+        parsed = strtol(buf, &end, 10);
+        if (errno == ERANGE || parsed < INT_MIN || parsed > INT_MAX)
+                return -ERANGE;
+        if (end == buf)
+                return -EINVAL;
+        while (*end && isspace((unsigned char)*end))
+                end++;
+        if (*end)
+                return -EINVAL;
+
+        *value = (int)parsed;
+        return 0;
+}
+
+static int read_iio_float(const char *device_path, const char *attr,
+                          float *value) {
+        char path[IIO_PATH_SIZE];
+        char buf[IIO_VALUE_SIZE];
+        char *end;
+        float parsed;
+        int ret;
+
+        if (!value)
+                return -EINVAL;
+
+        ret = make_iio_attr_path(path, sizeof(path), device_path, attr);
+        if (ret)
+                return ret;
+
+        ret = read_text_file(path, buf, sizeof(buf));
+        if (ret)
+                return ret;
+
+        errno = 0;
+        parsed = strtof(buf, &end);
+        if (errno == ERANGE)
+                return -ERANGE;
+        if (end == buf)
+                return -EINVAL;
+        while (*end && isspace((unsigned char)*end))
+                end++;
+        if (*end)
+                return -EINVAL;
+
+        *value = parsed;
+        return 0;
+}
+
+static int find_iio_device(const char *name, char *device_path,
+                           size_t device_path_size) {
+        struct dirent *entry;
+        char candidate[IIO_PATH_SIZE];
+        char name_path[IIO_PATH_SIZE];
+        char actual_name[IIO_VALUE_SIZE];
+        DIR *dir;
+        int count;
+        int ret = -ENODEV;
+
+        if (!name || !device_path || device_path_size == 0)
+                return -EINVAL;
+
+        dir = opendir(IIO_SYSFS_BASE);
+        if (!dir)
+                return -errno;
+
+        while ((entry = readdir(dir)) != NULL) {
+                if (strncmp(entry->d_name, "iio:device",
+                            strlen("iio:device")) != 0)
+                        continue;
+
+                count = snprintf(candidate, sizeof(candidate), "%s/%s",
+                                 IIO_SYSFS_BASE, entry->d_name);
+                if (count < 0 || (size_t)count >= sizeof(candidate))
+                        continue;
+
+                count = snprintf(name_path, sizeof(name_path), "%s/name",
+                                 candidate);
+                if (count < 0 || (size_t)count >= sizeof(name_path))
+                        continue;
+
+                if (read_text_file(name_path, actual_name,
+                                   sizeof(actual_name)) != 0)
+                        continue;
+
+                actual_name[strcspn(actual_name, "\r\n")] = '\0';
+                if (strcmp(actual_name, name) != 0)
+                        continue;
+
+                count = snprintf(device_path, device_path_size, "%s",
+                                 candidate);
+                if (count < 0 || (size_t)count >= device_path_size)
+                        ret = -ENAMETOOLONG;
+                else
+                        ret = 0;
+                break;
+        }
+
+        closedir(dir);
+        return ret;
+}
+
+static void report_iio_error(const char *sensor, const char *attr, int error) {
+        fprintf(stderr, "%s: read %s failed: %s\n", sensor, attr,
+                strerror(error < 0 ? -error : error));
 }
 
 // 任务类型枚举
@@ -146,126 +318,124 @@ void task_blink_led(void *arg) {
 }
 
 void task_read_ap3216c(void *arg) {
-        const char *dev = (const char *)arg;
-        if (!dev) {
-                fprintf(stderr, "task_read_ap3216c:dev path is NULL\r\n");
+        const char *device_path = (const char *)arg;
+        char ir_text[32];
+        char ps_text[32];
+        int als_raw = 0;
+        int ir_raw = 0;
+        int ps_raw = 0;
+        float als_scale = 0.0f;
+        int ret;
+        static pthread_mutex_t sample_lock = PTHREAD_MUTEX_INITIALIZER;
+
+        if (!device_path) {
+                fprintf(stderr, "AP3216C: IIO device path is NULL\n");
                 return;
         }
-        int fd = open(dev, O_RDONLY);
-        if (fd < 0) {
-                perror("task_read_ap3216c:open dev fail\r\n");
+        if (pthread_mutex_trylock(&sample_lock) != 0)
                 return;
+
+        ret = read_iio_int(device_path, "in_illuminance_raw", &als_raw);
+        if (ret) {
+                report_iio_error("AP3216C", "in_illuminance_raw", ret);
+                goto unlock;
         }
 
-        unsigned short data[3];
-        ssize_t n = read(fd, data, sizeof(data));
-        if (n < 0) {
-                perror("task_read_ap3216c:read fail\r\n");
-                close(fd);
-                return;
-        }
-        if (n < (ssize_t)sizeof(data)) {
-                fprintf(stderr,
-                        "task_read_ap3216c:read length is not right\r\n");
-                close(fd);
-                return;
+        ret = read_iio_float(device_path, "in_illuminance_scale", &als_scale);
+        if (ret) {
+                report_iio_error("AP3216C", "in_illuminance_scale", ret);
+                goto unlock;
         }
 
-        unsigned short ir = data[0];
-        unsigned short als = data[1];
-        unsigned short ps = data[2];
-        printf("------------------------------\r\n");
-        printf("###: AP3216C->IR=%u ALS=%u PS=%u\r\n", ir, als, ps);
+        ret = read_iio_int(device_path, "in_intensity_ir_raw", &ir_raw);
+        if (ret == -EOVERFLOW) {
+                snprintf(ir_text, sizeof(ir_text), "N/A(overrange)");
+        } else if (ret) {
+                report_iio_error("AP3216C", "in_intensity_ir_raw", ret);
+                goto unlock;
+        } else {
+                snprintf(ir_text, sizeof(ir_text), "%d", ir_raw);
+        }
 
-        close(fd);
+        ret = read_iio_int(device_path, "in_proximity_raw", &ps_raw);
+        if (ret == -EOVERFLOW) {
+                snprintf(ps_text, sizeof(ps_text), "N/A(overrange)");
+        } else if (ret) {
+                report_iio_error("AP3216C", "in_proximity_raw", ret);
+                goto unlock;
+        } else {
+                snprintf(ps_text, sizeof(ps_text), "%d", ps_raw);
+        }
+
+        printf("------------------------------\n"
+               "AP3216C | ALS: %.2f lux (raw=%d) | IR: %s | PS: %s\n",
+               als_raw * als_scale, als_raw, ir_text, ps_text);
+
+unlock:
+        pthread_mutex_unlock(&sample_lock);
 }
+
 void task_read_icm20608(void *arg) {
-        char path[256];
-        char buf[32];
-        int fd, ret;
+        const char *device_path = (const char *)arg;
         int ax_raw, ay_raw, az_raw;
         int gx_raw, gy_raw, gz_raw;
         int temp_raw;
         float ax, ay, az;
         float gx, gy, gz;
         float temp_c;
+        int ret;
 
-        /* 静态变量保持滤波状态 */
+        /* 静态变量保持滤波状态，采样锁避免同类任务重叠。 */
         static moving_avg_t fax, fay, faz, fgx, fgy, fgz, ftemp;
-        static int initialized = 0;
-        if (!initialized) {
-                int i;
-                for (i = 0; i < FILTER_WINDOW; i++) {
-                        fax.buf[i] = fay.buf[i] = faz.buf[i] = 0.0f;
-                        fgx.buf[i] = fgy.buf[i] = fgz.buf[i] = 0.0f;
-                        ftemp.buf[i] = 0.0f;
-                }
-                fax.idx = fay.idx = faz.idx = 0;
-                fgx.idx = fgy.idx = fgz.idx = 0;
-                ftemp.idx = 0;
-                fax.count = fay.count = faz.count = 0;
-                fgx.count = fgy.count = fgz.count = 0;
-                ftemp.count = 0;
-                fax.sum = fay.sum = faz.sum = 0.0f;
-                fgx.sum = fgy.sum = fgz.sum = 0.0f;
-                ftemp.sum = 0.0f;
-                initialized = 1;
-        }
+        static pthread_mutex_t sample_lock = PTHREAD_MUTEX_INITIALIZER;
 
-        (void)arg;
+        if (!device_path) {
+                fprintf(stderr, "ICM20608: IIO device path is NULL\n");
+                return;
+        }
+        if (pthread_mutex_trylock(&sample_lock) != 0)
+                return;
 
         /* 加速度 */
-        snprintf(path, sizeof(path), "%s/in_accel_x_raw", IIO_DEVICE_PATH);
-        fd = open(path, O_RDONLY);
-        if (fd < 0) return;
-        ret = read(fd, buf, sizeof(buf) - 1);
-        close(fd);
-        if (ret < 0) return;
-        buf[ret] = '\0'; ax_raw = atoi(buf);
-
-        snprintf(path, sizeof(path), "%s/in_accel_y_raw", IIO_DEVICE_PATH);
-        fd = open(path, O_RDONLY);
-        if (fd < 0) return;
-        ret = read(fd, buf, sizeof(buf) - 1);
-        close(fd);
-        buf[ret] = '\0'; ay_raw = atoi(buf);
-
-        snprintf(path, sizeof(path), "%s/in_accel_z_raw", IIO_DEVICE_PATH);
-        fd = open(path, O_RDONLY);
-        if (fd < 0) return;
-        ret = read(fd, buf, sizeof(buf) - 1);
-        close(fd);
-        buf[ret] = '\0'; az_raw = atoi(buf);
+        ret = read_iio_int(device_path, "in_accel_x_raw", &ax_raw);
+        if (ret) {
+                report_iio_error("ICM20608", "in_accel_x_raw", ret);
+                goto unlock;
+        }
+        ret = read_iio_int(device_path, "in_accel_y_raw", &ay_raw);
+        if (ret) {
+                report_iio_error("ICM20608", "in_accel_y_raw", ret);
+                goto unlock;
+        }
+        ret = read_iio_int(device_path, "in_accel_z_raw", &az_raw);
+        if (ret) {
+                report_iio_error("ICM20608", "in_accel_z_raw", ret);
+                goto unlock;
+        }
 
         /* 陀螺仪 */
-        snprintf(path, sizeof(path), "%s/in_anglvel_x_raw", IIO_DEVICE_PATH);
-        fd = open(path, O_RDONLY);
-        if (fd < 0) return;
-        ret = read(fd, buf, sizeof(buf) - 1);
-        close(fd);
-        buf[ret] = '\0'; gx_raw = atoi(buf);
-
-        snprintf(path, sizeof(path), "%s/in_anglvel_y_raw", IIO_DEVICE_PATH);
-        fd = open(path, O_RDONLY);
-        if (fd < 0) return;
-        ret = read(fd, buf, sizeof(buf) - 1);
-        close(fd);
-        buf[ret] = '\0'; gy_raw = atoi(buf);
-
-        snprintf(path, sizeof(path), "%s/in_anglvel_z_raw", IIO_DEVICE_PATH);
-        fd = open(path, O_RDONLY);
-        if (fd < 0) return;
-        ret = read(fd, buf, sizeof(buf) - 1);
-        close(fd);
-        buf[ret] = '\0'; gz_raw = atoi(buf);
+        ret = read_iio_int(device_path, "in_anglvel_x_raw", &gx_raw);
+        if (ret) {
+                report_iio_error("ICM20608", "in_anglvel_x_raw", ret);
+                goto unlock;
+        }
+        ret = read_iio_int(device_path, "in_anglvel_y_raw", &gy_raw);
+        if (ret) {
+                report_iio_error("ICM20608", "in_anglvel_y_raw", ret);
+                goto unlock;
+        }
+        ret = read_iio_int(device_path, "in_anglvel_z_raw", &gz_raw);
+        if (ret) {
+                report_iio_error("ICM20608", "in_anglvel_z_raw", ret);
+                goto unlock;
+        }
 
         /* 温度 */
-        snprintf(path, sizeof(path), "%s/in_temp_raw", IIO_DEVICE_PATH);
-        fd = open(path, O_RDONLY);
-        if (fd < 0) return;
-        ret = read(fd, buf, sizeof(buf) - 1);
-        close(fd);
-        buf[ret] = '\0'; temp_raw = atoi(buf);
+        ret = read_iio_int(device_path, "in_temp_raw", &temp_raw);
+        if (ret) {
+                report_iio_error("ICM20608", "in_temp_raw", ret);
+                goto unlock;
+        }
 
         /* 转换 + 滤波 */
         ax = ma_filter(&fax, ax_raw * 0.000598f / 9.8f);
@@ -276,23 +446,33 @@ void task_read_icm20608(void *arg) {
         gz = ma_filter(&fgz, gz_raw * 0.001065f);
         temp_c = ma_filter(&ftemp, temp_raw / 326.8f + 25.0f);
 
-        printf("------------------------------\r\n");
-        printf("ICM20608 | Accel(g): X%+6.3f Y%+6.3f Z%+6.3f | "
-               "Gyro(rad/s): X%+7.3f Y%+7.3f Z%+7.3f | Temp: %+6.2f°C\r\n",
+        printf("------------------------------\n"
+               "ICM20608 | Accel(g): X%+6.3f Y%+6.3f Z%+6.3f | "
+               "Gyro(rad/s): X%+7.3f Y%+7.3f Z%+7.3f | Temp: %+6.2f°C\n",
                ax, ay, az, gx, gy, gz, temp_c);
+
+unlock:
+        pthread_mutex_unlock(&sample_lock);
 }
 
 int creat_periodic_timer(int interval_ms) {
+        struct itimerspec its;
         int tfd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
-        if (tfd < 0) {
+        if (tfd < 0)
                 return tfd;
-        }
-        struct itimerspec its; //
+
+        memset(&its, 0, sizeof(its));
         its.it_interval.tv_sec = interval_ms / 1000;
-        its.it_value.tv_nsec = (interval_ms % 1000) * 1000000;
+        its.it_interval.tv_nsec = (interval_ms % 1000) * 1000000;
         its.it_value = its.it_interval;
 
-        timerfd_settime(tfd, 0, &its, NULL);
+        if (timerfd_settime(tfd, 0, &its, NULL) < 0) {
+                int saved_errno = errno;
+
+                close(tfd);
+                errno = saved_errno;
+                return -1;
+        }
 
         return tfd;
 }
@@ -328,6 +508,13 @@ thread_pool_t *thread_pool_create(int max_thread_num) {
                         pool->shutdown = 1;
                         pthread_cond_broadcast(&pool->cond);
                         pthread_mutex_unlock(&pool->lock);
+
+                        while (i > 0) {
+                                i--;
+                                pthread_join(pool->threads[i], NULL);
+                        }
+                        pthread_cond_destroy(&pool->cond);
+                        pthread_mutex_destroy(&pool->lock);
                         free(pool->threads);
                         free(pool);
                         return NULL;
@@ -364,37 +551,62 @@ void thread_pool_destroy(thread_pool_t *pool) {
         free(pool);
 }
 
-void daemon_scheduler_loop(thread_pool_t *pool) {}
-
 int main(void) {
-        int tfd = 0;
+        char ap3216c_path[IIO_PATH_SIZE];
+        char icm20608_path[IIO_PATH_SIZE];
+        thread_pool_t *pool;
+        uint64_t exp;
+        int ret;
+        int tfd;
         int ep;
 
-        uint64_t exp;
-        thread_pool_t *pool = thread_pool_create(4);
+        ret = find_iio_device("ap3216c", ap3216c_path, sizeof(ap3216c_path));
+        if (ret) {
+                fprintf(stderr, "main: cannot find AP3216C IIO device: %s\n",
+                        strerror(-ret));
+                return EXIT_FAILURE;
+        }
+
+        ret = find_iio_device("icm20608", icm20608_path, sizeof(icm20608_path));
+        if (ret) {
+                fprintf(stderr, "main: cannot find ICM20608 IIO device: %s\n",
+                        strerror(-ret));
+                return EXIT_FAILURE;
+        }
+
+        printf("IIO devices: ICM20608=%s, AP3216C=%s\n", icm20608_path,
+               ap3216c_path);
+
+        pool = thread_pool_create(4);
         if (!pool) {
                 fprintf(stderr, "main:创建线程池失败\n");
-                return -1;
+                return EXIT_FAILURE;
         }
+
         tfd = creat_periodic_timer(200);
         if (tfd < 0) {
-                fprintf(stderr, "main: 创建定时器失败\n");
+                perror("main: timerfd setup failed");
                 thread_pool_destroy(pool);
-                return -1;
+                return EXIT_FAILURE;
         }
+
         ep = epoll_create1(0);
         if (ep < 0) {
                 perror("main: epoll_create1 失败");
                 close(tfd);
                 thread_pool_destroy(pool);
-                return -1;
+                return EXIT_FAILURE;
         }
+
         struct epoll_event ev = {0};
         ev.events = EPOLLIN;
         ev.data.fd = tfd;
         if (epoll_ctl(ep, EPOLL_CTL_ADD, tfd, &ev) < 0) {
-                perror("epoll_ctl error!\r\n");
-                return -1;
+                perror("epoll_ctl error");
+                close(ep);
+                close(tfd);
+                thread_pool_destroy(pool);
+                return EXIT_FAILURE;
         }
 
         for (;;) {
@@ -403,7 +615,7 @@ int main(void) {
                 if (n < 0) {
                         if (errno == EINTR)
                                 continue;
-                        perror("epoll wait fail!\r\n");
+                        perror("epoll wait fail");
                         break;
                 }
                 if (e.events & EPOLLIN) {
@@ -415,20 +627,22 @@ int main(void) {
                                         perror("timerfd read failed");
                                 else
                                         fprintf(stderr,
-                                                "timerfd short read: %zd bytes\n",
+                                                "timerfd short read: %zd "
+                                                "bytes\n",
                                                 bytes_read);
                                 break;
                         }
 
                         thread_pool_submit(pool, TASK_READ_AP3216C,
-                                           task_read_ap3216c,
-                                           DEVICE_FILE_NAME_AP3216C);
+                                           task_read_ap3216c, ap3216c_path);
 
                         thread_pool_submit(pool, TASK_READ_ICM20608,
-                                           task_read_icm20608,
-                                           DEVICE_FILE_NAME_ICM20608);
+                                           task_read_icm20608, icm20608_path);
                 }
         }
 
-        return 0;
+        close(ep);
+        close(tfd);
+        thread_pool_destroy(pool);
+        return EXIT_FAILURE;
 }

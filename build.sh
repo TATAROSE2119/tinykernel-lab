@@ -2,7 +2,7 @@
 set -e
 cd "$(dirname "$0")"
 
-NFS_ROOTFS=${NFS_ROOTFS:-/home/tatarose_laptop_wsl/rootfs}
+NFS_ROOTFS=${NFS_ROOTFS:-/home/tatarose/linux_for_imx6ull/rootfs}
 KERNEL_VERSION=${KERNEL_VERSION:-4.1.15}
 MODULE_DIR="${NFS_ROOTFS}/lib/modules/${KERNEL_VERSION}"
 BIN_DIR="${NFS_ROOTFS}/usr/bin"
@@ -18,7 +18,7 @@ read -p "选择 [1/2/3/4]: " choice
 # 确保NFS目录存在
 setup_nfs_dirs() {
   echo "确保NFS目录存在..."
-  mkdir -p "${MODULE_DIR}" "${BIN_DIR}" 2>/dev/null || \
+  mkdir -p "${MODULE_DIR}" "${BIN_DIR}" 2>/dev/null ||
     sudo mkdir -p "${MODULE_DIR}" "${BIN_DIR}"
 }
 
@@ -47,6 +47,8 @@ deploy_files() {
   copy_artifact "drivers/SPIICM-20608/spi_ICM20608.ko" "${MODULE_DIR}" "spi_ICM20608.ko"
   copy_artifact "drivers/BLOCK_DEV/ramdisk.ko" "${MODULE_DIR}" "ramdisk.ko"
   copy_artifact "drivers/IIO_SPI_ICM_20608/iio_icm_20608.ko" "${MODULE_DIR}" "iio_icm_20608.ko"
+
+  copy_artifact "drivers/IIO_IIC_AP3216C/iio_ap3216c.ko" "${MODULE_DIR}" "iio_ap3216c.ko"
 
   # 拷贝用户应用程序
   copy_artifact "build/app/myctl" "${BIN_DIR}" "myctl"

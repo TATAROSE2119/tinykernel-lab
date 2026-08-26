@@ -1,8 +1,8 @@
 # Makefile（根目录）
 PROJECT_ROOT ?= $(CURDIR)
 BUILD_DIR    ?= $(PROJECT_ROOT)/build
-KERNELDIR    ?= /home/tatarose_laptop_wsl/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek
-NFS_ROOTFS   ?= /home/tatarose_laptop_wsl/rootfs
+KERNELDIR    ?= $(HOME)/linux_for_imx6ull/linux-imx-rel_imx_4.1.15_2.1.0_ga_alientek
+NFS_ROOTFS   ?= $(HOME)/linux_for_imx6ull/rootfs
 ARCH         ?= arm
 CROSS_COMPILE?= arm-linux-gnueabihf-
 TOOLCHAIN_PREFIX ?=
