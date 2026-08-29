@@ -150,56 +150,85 @@ static int read_iio_float(const char *device_path, const char *attr,
         return 0;
 }
 
+/*
+ * find_iio_device - 在 sysfs 中按设备名查找对应的 IIO 设备路径
+ *
+ * @name:              要查找的 IIO 设备名（如 "ap3216c"、"icm20608"）
+ * @device_path:       输出缓冲区，用于存放匹配设备的完整 sysfs 路径
+ * @device_path_size:  输出缓冲区的大小（字节）
+ *
+ * 遍历 /sys/bus/iio/devices 目录，对每个以 "iio:device" 开头的目录，
+ * 读取其 "name" 属性文件并与目标名称比较，找到第一个匹配项后，
+ * 将其完整路径写入 device_path。
+ *
+ * 返回值:
+ *   0            成功找到设备
+ *   -EINVAL      参数非法（name/device_path 为空或缓冲区大小为 0）
+ *   -errno       opendir 失败时返回对应错误码
+ *   -ENODEV      未找到匹配设备（默认返回值）
+ *   -ENAMETOOLONG 设备路径超出缓冲区大小
+ */
 static int find_iio_device(const char *name, char *device_path,
                            size_t device_path_size) {
-        struct dirent *entry;
-        char candidate[IIO_PATH_SIZE];
-        char name_path[IIO_PATH_SIZE];
-        char actual_name[IIO_VALUE_SIZE];
-        DIR *dir;
-        int count;
-        int ret = -ENODEV;
+        struct dirent *entry;                 /* 目录项，用于遍历 sysfs 目录 */
+        char candidate[IIO_PATH_SIZE];        /* 候选设备完整路径（如 /sys/.../iio:device0） */
+        char name_path[IIO_PATH_SIZE];        /* 候选设备的 name 属性文件路径 */
+        char actual_name[IIO_VALUE_SIZE];     /* 从 name 文件读到的实际设备名 */
+        DIR *dir;                             /* 打开的 sysfs 目录句柄 */
+        int count;                            /* snprintf 返回值，用于判断截断 */
+        int ret = -ENODEV;                    /* 默认返回未找到设备 */
 
+        /* 参数合法性检查：name 和 device_path 不能为空，缓冲区至少要有 1 字节 */
         if (!name || !device_path || device_path_size == 0)
                 return -EINVAL;
 
+        /* 打开 IIO 设备根目录，失败则返回对应 errno */
         dir = opendir(IIO_SYSFS_BASE);
         if (!dir)
                 return -errno;
 
+        /* 遍历目录下所有条目，逐个检查 */
         while ((entry = readdir(dir)) != NULL) {
+                /* 跳过不以 "iio:device" 开头的条目（如 "."、".."、其他设备） */
                 if (strncmp(entry->d_name, "iio:device",
                             strlen("iio:device")) != 0)
                         continue;
 
+                /* 拼接候选设备的完整路径，若缓冲区不够则跳过该条目 */
                 count = snprintf(candidate, sizeof(candidate), "%s/%s",
                                  IIO_SYSFS_BASE, entry->d_name);
                 if (count < 0 || (size_t)count >= sizeof(candidate))
                         continue;
 
+                /* 拼接该设备的 name 属性文件路径 */
                 count = snprintf(name_path, sizeof(name_path), "%s/name",
                                  candidate);
                 if (count < 0 || (size_t)count >= sizeof(name_path))
                         continue;
 
+                /* 读取 name 文件内容，读取失败则跳过该条目 */
                 if (read_text_file(name_path, actual_name,
                                    sizeof(actual_name)) != 0)
                         continue;
 
+                /* 去掉 name 字符串末尾的换行符（\r 或 \n） */
                 actual_name[strcspn(actual_name, "\r\n")] = '\0';
+
+                /* 与目标名称比较，不匹配则继续检查下一个条目 */
                 if (strcmp(actual_name, name) != 0)
                         continue;
 
+                /* 找到匹配设备，将其完整路径复制到输出缓冲区 */
                 count = snprintf(device_path, device_path_size, "%s",
                                  candidate);
                 if (count < 0 || (size_t)count >= device_path_size)
-                        ret = -ENAMETOOLONG;
+                        ret = -ENAMETOOLONG;   /* 路径超出缓冲区，报名字过长 */
                 else
-                        ret = 0;
-                break;
+                        ret = 0;               /* 成功 */
+                break;                         /* 已找到，终止遍历 */
         }
 
-        closedir(dir);
+        closedir(dir);                         /* 关闭目录 */
         return ret;
 }
 
@@ -552,21 +581,25 @@ void thread_pool_destroy(thread_pool_t *pool) {
 }
 
 int main(void) {
-        char ap3216c_path[IIO_PATH_SIZE];
-        char icm20608_path[IIO_PATH_SIZE];
-        thread_pool_t *pool;
-        uint64_t exp;
-        int ret;
-        int tfd;
-        int ep;
+        /* 设备路径缓冲区：用于存放通过 sysfs 搜索到的 IIO 设备完整路径 */
+        char ap3216c_path[IIO_PATH_SIZE];   /* 光传感器 AP3216C 的 IIO 设备路径 */
+        char icm20608_path[IIO_PATH_SIZE];  /* 六轴传感器 ICM20608 的 IIO 设备路径 */
+        thread_pool_t *pool;                /* 线程池句柄，用于异步执行采样任务 */
+        uint64_t exp;                       /* 接收 timerfd 到期次数的缓冲区 */
+        int ret;                            /* 通用返回值 */
+        int tfd;                            /* 周期定时器文件描述符 (timerfd) */
+        int ep;                             /* epoll 实例文件描述符 */
 
+        /* 在 /sys/bus/iio/devices 下按设备名搜索 AP3216C 的 IIO 设备路径 */
         ret = find_iio_device("ap3216c", ap3216c_path, sizeof(ap3216c_path));
         if (ret) {
+                /* 找不到设备则无法继续采样，直接退出 */
                 fprintf(stderr, "main: cannot find AP3216C IIO device: %s\n",
                         strerror(-ret));
                 return EXIT_FAILURE;
         }
 
+        /* 按设备名搜索 ICM20608 的 IIO 设备路径 */
         ret = find_iio_device("icm20608", icm20608_path, sizeof(icm20608_path));
         if (ret) {
                 fprintf(stderr, "main: cannot find ICM20608 IIO device: %s\n",
@@ -574,15 +607,18 @@ int main(void) {
                 return EXIT_FAILURE;
         }
 
+        /* 打印解析到的设备路径，便于调试确认 */
         printf("IIO devices: ICM20608=%s, AP3216C=%s\n", icm20608_path,
                ap3216c_path);
 
+        /* 创建包含 4 个工作线程的线程池，用于并发执行传感器采样任务 */
         pool = thread_pool_create(4);
         if (!pool) {
                 fprintf(stderr, "main:创建线程池失败\n");
                 return EXIT_FAILURE;
         }
 
+        /* 创建周期为 200ms 的周期定时器，作为整个采样循环的节拍来源 */
         tfd = creat_periodic_timer(200);
         if (tfd < 0) {
                 perror("main: timerfd setup failed");
@@ -590,6 +626,7 @@ int main(void) {
                 return EXIT_FAILURE;
         }
 
+        /* 创建 epoll 实例，用于监听定时器事件（可扩展监听其他 fd） */
         ep = epoll_create1(0);
         if (ep < 0) {
                 perror("main: epoll_create1 失败");
@@ -598,9 +635,10 @@ int main(void) {
                 return EXIT_FAILURE;
         }
 
+        /* 将定时器 fd 加入 epoll 监听，关注可读事件（即定时器到期） */
         struct epoll_event ev = {0};
-        ev.events = EPOLLIN;
-        ev.data.fd = tfd;
+        ev.events = EPOLLIN;      /* 监听可读事件 */
+        ev.data.fd = tfd;         /* 关联定时器 fd */
         if (epoll_ctl(ep, EPOLL_CTL_ADD, tfd, &ev) < 0) {
                 perror("epoll_ctl error");
                 close(ep);
@@ -609,20 +647,26 @@ int main(void) {
                 return EXIT_FAILURE;
         }
 
+        /* 主循环：阻塞等待定时器到期，到期后向线程池提交采样任务 */
         for (;;) {
                 struct epoll_event e;
+                /* 阻塞等待事件，超时 -1 表示无限等待 */
                 int n = epoll_wait(ep, &e, 1, -1);
                 if (n < 0) {
+                        /* 被信号打断则重试 */
                         if (errno == EINTR)
                                 continue;
                         perror("epoll wait fail");
                         break;
                 }
+
+                /* 仅处理定时器到期（可读）事件 */
                 if (e.events & EPOLLIN) {
+                        /* 读取定时器到期次数，清空可读状态，避免电平触发一直返回 */
                         ssize_t bytes_read = read(tfd, &exp, sizeof(exp));
                         if (bytes_read != sizeof(exp)) {
                                 if (bytes_read < 0 && errno == EINTR)
-                                        continue;
+                                        continue;      /* 被信号打断则重试 */
                                 if (bytes_read < 0)
                                         perror("timerfd read failed");
                                 else
@@ -633,14 +677,17 @@ int main(void) {
                                 break;
                         }
 
+                        /* 向线程池提交光传感器采样任务（异步执行） */
                         thread_pool_submit(pool, TASK_READ_AP3216C,
                                            task_read_ap3216c, ap3216c_path);
 
+                        /* 向线程池提交六轴传感器采样任务（异步执行） */
                         thread_pool_submit(pool, TASK_READ_ICM20608,
                                            task_read_icm20608, icm20608_path);
                 }
         }
 
+        /* 清理资源：关闭 epoll、定时器，销毁线程池 */
         close(ep);
         close(tfd);
         thread_pool_destroy(pool);
